@@ -1,0 +1,8 @@
+{
+  "name": "kaobao-goal-app",
+  "version": "2.0.0",
+  "description": "备考目标 · 倒计时与进度记录本（桌面版）",
+  "main": "main.js",
+  "author": "local",
+  "license": "MIT"
+}

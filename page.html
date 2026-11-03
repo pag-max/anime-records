@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>娱乐记录本</title>
+<style>
+  :root{
+    --bg:#f5f3fe;--card:#ffffff;--ink:#2b2142;--muted:#8b84a8;
+    --primary:#7c5cf0;--primary-dark:#6846dd;--primary-soft:#f0ebff;
+    --success:#12b76a;--success-soft:#e6f9f0;
+    --warn:#e7823a;--warn-soft:#fdf1e6;
+    --danger:#e5484d;--danger-soft:#fdecec;
+    --line:#ece7fb;--radius:14px;--shadow:0 6px 24px rgba(124,92,240,.09);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;}
+  .wrap{max-width:820px;margin:0 auto;padding:16px 16px 84px;}
+  header.top{display:flex;align-items:center;justify-content:space-between;padding:4px 0 10px;}
+  header.top h1{font-size:21px;}
+  header.top h1 .dot{color:var(--primary);}
+  .sub{color:var(--muted);font-size:12.5px;margin-top:3px;font-weight:400;}
+  .topbtns{display:flex;gap:8px;}
+  .btn{border:none;cursor:pointer;border-radius:10px;font-size:14px;font-weight:600;padding:9px 14px;transition:.15s;font-family:inherit;background:none;color:inherit;}
+  .btn:active{transform:scale(.96);}
+  .btn-primary{background:var(--primary);color:#fff;}
+  .btn-primary:hover{background:var(--primary-dark);}
+  .btn-ghost{background:#fff;color:var(--primary);border:1.5px solid var(--line);}
+  .btn-danger{background:var(--danger-soft);color:var(--danger);}
+  .btn-sm{padding:6px 10px;font-size:13px;border-radius:8px;}
+  .btn-xs{padding:3px 8px;font-size:12px;border-radius:7px;}
+
+  .store-bar{padding:10px 14px;border-radius:10px;font-size:12.5px;line-height:1.6;margin-bottom:12px;}
+  .store-bar.ok{background:var(--success-soft);color:#0d9d5c;}
+  .store-bar.warn{background:var(--warn-soft);color:#b5640b;}
+  .store-bar .btns{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;}
+
+  .tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;position:sticky;top:0;background:var(--bg);z-index:20;padding:6px 0;}
+  .tab{flex:1;min-width:88px;text-align:center;padding:10px 6px;border-radius:12px;font-weight:700;background:#fff;border:1.5px solid var(--line);color:var(--muted);cursor:pointer;font-size:14px;}
+  .tab.on{background:var(--primary);border-color:var(--primary);color:#fff;}
+  .tab .cnt{font-size:11px;font-weight:600;opacity:.7;margin-left:3px;}
+  .tab.add{flex:0 0 auto;min-width:52px;background:var(--primary-soft);color:var(--primary);border-style:dashed;font-size:17px;}
+  .chips span.on{background:var(--primary);color:#fff;}
+  .btn.on-batch{background:var(--primary);color:#fff;}
+  .batch-bar{display:flex;align-items:center;gap:8px;background:var(--primary-soft);border:1.5px dashed var(--primary);border-radius:11px;padding:8px 12px;margin-bottom:12px;flex-wrap:wrap;}
+  .batch-bar .bcnt{font-size:13px;font-weight:600;color:var(--ink);}
+  .batch-bar .bcnt b{color:var(--primary);}
+  .bitem{cursor:pointer;background:#fff;border:1.5px solid transparent;border-radius:10px;padding:9px 12px;margin-bottom:6px;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow);user-select:none;}
+  .bitem.bsel{border-color:var(--primary);background:var(--primary-soft);}
+  .bitem .bcheck{font-size:15px;color:var(--primary);flex:none;}
+  .bitem .iname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:14px;}
+  .bitem .iname.finish{color:var(--muted);text-decoration:line-through;}
+
+  .toolbar{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  .toolbar .spacer{flex:1;}
+  .toolbar .tip{font-size:12px;color:var(--muted);}
+  .toolbar select.flt{border:1.5px solid var(--line);border-radius:9px;padding:7px 9px;font-size:13px;background:#fff;color:var(--ink);font-family:inherit;cursor:pointer;}
+  .toolbar select.flt:focus{outline:none;border-color:var(--primary);}
+
+  .panel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:12px;}
+  .panel h2{font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+
+  /* 系列(分组)卡片 */
+  .group{border:1.5px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;background:#fff;}
+  .group-head{display:flex;align-items:center;gap:8px;padding:11px 12px;cursor:pointer;}
+  .group-head .chev{transition:.2s;color:var(--muted);font-size:13px;width:16px;text-align:center;}
+  .group-head.collapsed .chev{transform:rotate(-90deg);}
+  .group-head .gname{font-weight:700;font-size:15px;flex:1;}
+  .group-head .gcount{color:var(--muted);font-size:12px;}
+  .group-head .ops{display:flex;gap:4px;}
+  .group-body{padding:0 8px 10px;border-top:1px dashed var(--line);}
+
+  /* 作品条目 */
+  .item-wrap{border-bottom:1px dashed var(--line);}
+  .item-wrap:last-child{border-bottom:none;}
+  .item{display:flex;align-items:center;gap:8px;padding:8px 8px;border-radius:8px;}
+  .item.dragover{background:var(--primary-soft);}
+  .group-head.dragover,.grand-head.dragover{background:var(--primary-soft);}
+  .drag{color:#c9c2e6;font-size:14px;cursor:grab;flex:none;}
+  .iname{font-size:14.5px;flex:1;word-break:break-all;cursor:pointer;padding:2px 6px;border-radius:6px;margin-right:2px;}
+  .iname:hover{color:var(--primary);}
+  .iname.finish{background:var(--success-soft);color:#0d9d5c;}
+  .endtag{flex:none;font-size:11px;padding:2px 8px;border-radius:99px;background:#d9f4ea;color:#0d9d5c;white-space:nowrap;font-weight:600;}
+  .status{font-size:12px;padding:3px 9px;border-radius:99px;cursor:pointer;flex:none;white-space:nowrap;background:var(--line);color:var(--muted);}
+  .status.todo{background:var(--warn-soft);color:#b5640b;}
+  .status.watching{background:var(--primary-soft);color:var(--primary-dark);}
+  .note-dot{color:var(--warn);flex:none;}
+  .itype{flex:none;font-size:11px;padding:2px 8px;border-radius:99px;background:#e8dcff;color:#7c5cf0;white-space:nowrap;}
+  .cfield{flex:none;font-size:11px;padding:2px 8px;border-radius:99px;background:#eaf4ff;color:#0e6fb8;white-space:nowrap;max-width:240px;overflow:hidden;text-overflow:ellipsis;}
+  .rops{display:flex;gap:2px;flex:none;}
+  .mini{width:26px;height:26px;border-radius:7px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:13px;}
+  .mini:hover{background:var(--line);color:var(--ink);}
+  .mini-done{color:#0d9d5c;font-weight:700;opacity:.85;}
+  .mini-done:hover{background:var(--success-soft);color:#0b8a52;opacity:1;}
+  .mini-revert{color:var(--warn);font-weight:700;}
+  .mini-revert:hover{background:var(--warn-soft);color:#b5640b;}
+  .addin{display:block;width:100%;text-align:center;padding:8px;color:var(--primary);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;}
+  .addin:hover{background:var(--primary-soft);}
+
+  .empty-mini{color:var(--muted);font-size:13px;text-align:center;padding:24px 10px;line-height:1.8;}
+
+  /* 收藏夹 */
+  .link{display:flex;align-items:center;gap:10px;padding:11px 6px;border-bottom:1px dashed var(--line);}
+  .link:last-child{border-bottom:none;}
+  .link .ltitle{font-weight:600;flex:1;word-break:break-all;}
+  .link .lurl{font-size:12px;color:var(--muted);word-break:break-all;display:block;}
+  .link .tag{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--primary-soft);color:var(--primary-dark);flex:none;}
+
+  /* 大系列 / 二级系列 */
+  .grand{background:linear-gradient(0deg,#fbfaff,#fff);border:1.5px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden;}
+  .grand-head{display:flex;align-items:center;gap:8px;padding:13px 14px;cursor:pointer;background:var(--primary-soft);}
+  .grand-head .chev{color:var(--primary);transition:.2s;width:16px;text-align:center;font-size:13px;}
+  .grand-head.collapsed .chev{transform:rotate(-90deg);}
+  .grand-head .gname{font-weight:800;font-size:16px;flex:1;color:var(--primary-dark);}
+  .grand-head .gcount{color:var(--muted);font-size:12px;}
+  .grand-body{padding:10px;}
+  .sub-in{font-size:12px;color:var(--primary);font-weight:700;margin:6px 2px 3px;}
+
+  /* 观看进度（在看时显示） */
+  .prog{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 8px 8px 32px;font-size:12.5px;color:var(--muted);background:#fbfaff;}
+  .prog .pl{font-size:11px;color:var(--primary);font-weight:700;}
+  .prog .pi{display:inline-flex;align-items:center;gap:4px;}
+  .prog input{width:62px;border:1px solid var(--line);border-radius:7px;padding:4px 7px;font-size:13px;text-align:center;background:#fff;font-family:inherit;}
+  .prog input.s{width:120px;text-align:left;}
+  .prog .sum{font-weight:700;color:var(--primary-dark);font-size:13px;}
+  .prog .tip{font-size:11px;color:#b8b1d4;}
+  .prog-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .prog-row>span{display:inline-flex;align-items:center;gap:5px;}
+  .prog-row label{font-size:13px;color:var(--muted);}
+  .prog-row input{width:86px;border:1.5px solid var(--line);border-radius:10px;padding:8px 8px;font-size:14px;}
+  .prog-row input[type=number]{width:58px;text-align:center;}
+
+  /* 空置提示 */
+  .empty{text-align:center;color:var(--muted);padding:50px 16px;}
+  .empty .big{font-size:46px;opacity:.4;margin-bottom:10px;}
+
+  /* 弹窗 */
+  .modal-bg{position:fixed;inset:0;background:rgba(30,20,60,.5);display:none;align-items:center;justify-content:center;padding:18px;z-index:50;}
+  .modal-bg.show{display:flex;}
+  .modal{background:#fff;border-radius:16px;max-width:500px;width:100%;padding:24px 24px 0;animation:pop .18s;max-height:calc(100vh - 36px);overflow:auto;}
+  @keyframes pop{from{opacity:0;}to{opacity:1;}}
+  .modal h3{font-size:18px;margin-bottom:16px;}
+  .field{margin-bottom:16px;flex:none;}
+  .field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:700;}
+  .field input,.field select,.field textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;font-size:15px;font-family:inherit;color:var(--ink);background:#fbfcff;}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--primary);background:#fff;}
+  .inline-input{display:flex;gap:8px;}
+  .inline-input input{flex:1;}
+  .clear-btn{border:1.5px solid var(--line);border-radius:10px;background:#fbfcff;color:var(--muted);cursor:pointer;padding:0 15px;font-size:15px;font-family:inherit;}
+  .clear-btn:hover{background:var(--danger-soft);color:var(--danger);}
+  .field textarea{min-height:72px;resize:vertical;}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .chips span{font-size:12.5px;padding:5px 13px;border-radius:99px;background:var(--line);cursor:pointer;font-weight:600;transition:.15s;}
+  .chips span:hover{background:var(--primary-soft);color:var(--primary-dark);}
+  /* 按钮行吸底：弹窗内容再高，保存/取消也始终可见可点（修复小屏幕上按钮被挤出可视区） */
+  .modal-btns{display:flex;gap:10px;position:sticky;bottom:0;background:#fff;padding:14px 24px 18px;margin:12px -24px 0;border-top:1px solid var(--line);border-radius:0 0 16px 16px;}
+  /* 进度：季名整行，下面每类一格（游戏整组隐藏） */
+  .prog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:2px;}
+  .prog-grid .full{grid-column:1/-1;}
+  .prog-grid>span{display:flex;flex-direction:column;gap:5px;}
+  .prog-grid label{font-size:12px;color:var(--muted);}
+  .prog-grid input{width:100%;border:1.5px solid var(--line);border-radius:9px;padding:10px 9px;font-size:14.5px;font-family:inherit;background:#fbfcff;text-align:center;}
+  .prog-grid input:focus{outline:none;border-color:var(--primary);background:#fff;}
+  .prog-grid .two{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .prog-grid .two>span{display:flex;flex-direction:column;gap:5px;}
+  .prog-grid .two input{text-align:center;}
+  .tip-inline{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.6;}
+  .danger-link{color:var(--danger);font-size:13px;cursor:pointer;flex:1;align-self:center;}
+  .danger-link:hover{text-decoration:underline;}
+
+  /* 系列管理弹窗 */
+  .modal-lg{max-width:580px;}
+  .modal-bg.top{z-index:60;}
+  .gm-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+  .gm-toolbar .tip{font-size:12.5px;color:var(--muted);}
+  .gm-row{display:flex;align-items:center;gap:8px;padding:9px 6px;border-bottom:1px dashed var(--line);}
+  .gm-row:last-child{border-bottom:none;}
+  .gm-lv{color:var(--muted);font-size:12px;flex:none;}
+  .gm-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:14.5px;}
+  .gm-name.gm-empty{color:var(--muted);font-weight:500;}
+  .gm-name em{font-style:normal;font-size:11px;color:#c9c2e6;margin-left:3px;}
+  .gm-cnt{flex:none;font-size:12px;color:var(--muted);}
+  .gm-ops{display:flex;gap:2px;flex:none;}
+
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:rgba(40,28,80,.95);color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;opacity:0;transition:.3s;z-index:80;pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:90vw;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .hint{font-size:12px;color:var(--muted);text-align:center;margin-top:18px;line-height:1.9;}
+  .hint b{color:var(--primary);}
+  .hint a{color:var(--primary);cursor:pointer;text-decoration:underline;}
+  /* 统计分页 */
+  .st-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:12px;}
+  .st-card{text-align:center;padding:16px 10px;margin-bottom:0;}
+  .st-num{font-size:34px;font-weight:800;line-height:1.1;color:var(--ink);}
+  .st-lab{font-size:12.5px;color:var(--muted);margin-top:6px;font-weight:600;}
+  .st-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;}
+  .st-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:9px;font-size:13px;}
+  .st-bar-name{flex:none;width:44px;color:var(--muted);}
+  .st-bar{flex:1;height:14px;background:var(--line);border-radius:99px;overflow:hidden;}
+  .st-bar i{display:block;height:100%;border-radius:99px;transition:.4s;}
+  .st-bar-row b{flex:none;width:26px;text-align:right;color:var(--ink);}
+  .st-row{display:flex;align-items:center;gap:8px;margin-bottom:9px;font-size:13px;}
+  .st-row>span{flex:none;width:130px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .st-row b{flex:none;width:24px;text-align:right;}
+  .st-donut-wrap{position:relative;display:flex;justify-content:center;margin:4px 0 10px;}
+  .st-donut{position:relative;width:128px;height:128px;}
+  .st-donut svg{width:100%;height:100%;}
+  .st-circle-in{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:26px;font-weight:800;color:var(--ink);}
+  .st-legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;font-size:12.5px;color:var(--muted);}
+  .st-legend i{display:inline-block;width:10px;height:10px;border-radius:99px;margin-right:4px;}
+  .st-fin{display:flex;align-items:center;gap:10px;margin-top:14px;}
+  .st-fin-bar{flex:1;height:10px;background:var(--line);border-radius:99px;overflow:hidden;}
+  .st-fin-bar i{display:block;height:100%;background:linear-gradient(90deg,#12b76a,#0ea5e9);}
+  .st-fin span{font-size:12.5px;color:var(--muted);flex:none;}
+  .st-empty{color:var(--muted);font-size:13px;padding:8px 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>娱乐记录本 <span class="dot">·</span> 已看/想看</h1>
+      <div class="sub" id="todayLabel"></div>
+    </div>
+    <div class="topbtns">
+      <button class="btn btn-ghost btn-sm" onclick="openExport()">导出</button>
+      <button class="btn btn-ghost btn-sm" onclick="openImport()">导入</button>
+    </div>
+  </header>
+
+  <div id="storeBar"></div>
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <main id="main"></main>
+
+  <p class="hint">
+    数据自动保存到 <b>json 文件</b>（不联网、不占端口），修改即存。<br>
+    系列支持任意层级嵌套（顶级 → 子系列 → 孙系列…，如：玄幻 → 辰东作品 → 辰东系）；「🗂 系列管理」可集中改名 / 删除 / 调整归属，空系列也会列出；设定为「在看」的作品会自动显示观看进度，进度单位可随分类变化（动漫/影视记集数·分，漫画/小说按章，游戏不记进度），点标签栏的「＋」还能新建自定义分类并自定进度单位（按集/季/章/卷/关等）；列表按「已完结 → 相同观看状态」分组排列，顶部下拉可「按状态/按完结/按类型」筛选。点「批量」可多选删除作品，「🗑 删除分类」可删掉不用的分类（连同其下数据）。状态/系列随时可改，「⬆⬇」或拖拽可排序。
+  </p>
+</div>
+
+<!-- 作品条目 编辑/新增 -->
+<div class="modal-bg" id="itemModal">
+  <div class="modal">
+    <h3 id="itemModalTitle">作品</h3>
+    <div class="field"><label>名称</label><input id="iv_name" placeholder="如：咒术回战"></div>
+    <div class="field"><label>观看状态（点击快捷选择）</label>
+      <input id="iv_status" list="statusOpts" placeholder="未看 / 想看 / 在看 / 已看完（也可自定义）">
+      <datalist id="statusOpts"></datalist>
+      <div class="chips" id="iv_chips"></div>
+    </div>
+    <div class="field"><label>整部作品是否已完结（与观看状态相互独立）</label>
+      <div class="chips" id="iv_fin_chips">
+        <span data-v="0" class="on">连载中</span><span data-v="1">已完结</span>
+      </div>
+    </div>
+    <div class="field" id="iv_prog_field"><label id="iv_prog_lbl">观看进度（状态「在看」时生效）</label>
+      <div class="prog-grid">
+        <span class="full"><label id="iv_season_lbl">季名 / 篇章</label><input id="iv_season" placeholder="如：第一季 / 武道篇"></span>
+        <span><label id="iv_ep_lbl">第几集</label><input id="iv_ep" type="number" min="0"></span>
+        <span class="two" id="iv_time_box">
+          <span><label>分</label><input id="iv_mm" type="number" min="0" max="59"></span>
+          <span style="display:none"><label>秒</label><input id="iv_ss" type="number" min="0" max="59"></span>
+        </span>
+      </div>
+      <div class="tip-inline" id="iv_prog_tip"></div>
+    </div>
+    <div class="field" id="iv_type_field" style="display:none"><label>类型（影视专用：电视剧 / 电影 / 短剧）</label><select id="iv_type"><option value="">（未指定）</option><option>电视剧</option><option>电影</option><option>短剧</option></select></div>
+    <div class="field"><label>所属系列（空则归入"其他作品"）</label><select id="iv_group"></select></div>
+    <div id="iv_custom"></div>
+    <div class="field"><label>备注</label><textarea id="iv_note" placeholder="记录看到哪、在哪看的等"></textarea></div>
+    <div class="modal-btns">
+      <span class="danger-link" id="iv_rm">删除</span>
+      <button class="btn btn-ghost" onclick="closeItem()">取消</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveItem()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 系列 编辑/新增 -->
+<div class="modal-bg" id="groupModal">
+  <div class="modal">
+    <h3 id="groupModalTitle">系列</h3>
+    <div class="field"><label>系列名称</label>
+      <div class="inline-input"><input id="gv_name" placeholder="如：Fate"><button class="clear-btn" title="一键清空后重新输入" onclick="clearGroupName()">✕</button></div>
+    </div>
+    <div class="field"><label>所属上级系列（不选则为顶级系列，支持多级嵌套）</label><select id="gv_parent"></select></div>
+    <div class="modal-btns">
+      <span class="danger-link" id="gv_rm">删除系列</span>
+      <button class="btn btn-ghost" onclick="closeGroup()">取消</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveGroup()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 系列管理 -->
+<div class="modal-bg" id="groupManagerModal">
+  <div class="modal modal-lg">
+    <h3>系列管理 · <span id="gm_cat"></span></h3>
+    <div class="gm-toolbar">
+      <button class="btn btn-primary btn-sm" onclick="openAddGroup()">＋ 加顶级系列</button>
+      <span class="tip" id="gm_cnt"></span>
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn btn-ghost btn-sm" onclick="closeGroupManager()">关闭</button>
+    </div>
+    <div id="gm_list"></div>
+    <div class="tip-inline">「✏️」改名或调整归属；「🗑」删除系列（其下子系列会上提一级，系列内作品一并删除）；空系列可放心删除。</div>
+  </div>
+</div>
+
+<!-- 收藏夹 新增/编辑 -->
+<div class="modal-bg" id="linkModal">
+  <div class="modal">
+    <h3 id="linkModalTitle">收藏网址</h3>
+    <div class="field"><label>标题</label><input id="lv_title" placeholder="如：哔哩哔哩"></div>
+    <div class="field"><label>网址</label><input id="lv_url" placeholder="如：https://www.bilibili.com"></div>
+    <div class="field"><label>标签（可选）</label><input id="lv_tag" placeholder="如：追番 / 漫画资源"></div>
+    <div class="field"><label>备注</label><textarea id="lv_note" placeholder="备注…"></textarea></div>
+    <div class="modal-btns">
+      <span class="danger-link" id="lv_rm">删除</span>
+      <button class="btn btn-ghost" onclick="closeLink()">取消</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveLink()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新增分类 -->
+<div class="modal-bg" id="catModal">
+  <div class="modal">
+    <h3>新增自定义分类</h3>
+    <div class="field"><label>分类名称</label><input id="cv_name" placeholder="如：纪录片 / 综艺 / 广播剧 / 单机游戏"></div>
+    <div class="field"><label>进度模式</label>
+      <div class="chips" id="cv_mode_chips">
+        <span data-v="prog" class="on">记进度</span><span data-v="hide">不记进度（如游戏只标记状态）</span>
+      </div>
+    </div>
+    <div id="cv_prog_box">
+      <div class="field"><label>进度单位名称</label><input id="cv_ep" placeholder="如：集 / 章 / 话 / 卷 / 关 / 期">
+        <div class="chips" id="cv_ep_chips"></div>
+      </div>
+      <div class="field"><label>是否记录「季名 / 篇章」</label>
+        <div class="chips" id="cv_season_chips">
+          <span data-v="">不要</span><span data-v="季名" class="on">季名</span><span data-v="篇章">篇章</span><span data-v="卷名">卷名</span>
+        </div>
+      </div>
+      <div class="field"><label>是否记录「分」</label>
+        <div class="chips" id="cv_time_chips">
+          <span data-v="0">不要</span><span data-v="1">记分（适合视频类）</span>
+        </div>
+      </div>
+    </div>
+    <div class="tip-inline">例子：「单机游戏」可按 <b>关</b> 记进度；「广播剧」按 <b>集 · 分</b>；「纪录片」按 <b>季 · 集</b>。</div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeAddCat()">取消</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveAddCat()">创建分类</button>
+    </div>
+  </div>
+</div>
+
+<!-- 观看状态 新增/编辑 -->
+<div class="modal-bg" id="statusModal">
+  <div class="modal">
+    <h3 id="statusModalTitle">观看状态</h3>
+    <div class="field"><label>状态名称</label><input id="st_name" placeholder="如：已弃 / 缓看 / 二刷"></div>
+    <div class="field"><label>适用范围（不勾选 = 全部分类通用）</label>
+      <div class="chips" id="st_cat_chips"></div>
+    </div>
+    <div class="tip-inline">勾选后该状态只出现在对应分类；一个都不勾则所有分类都能用。</div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeStatus()">取消</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveStatus()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 自定义字段 新增/编辑 -->
+<div class="modal-bg" id="fieldModal">
+  <div class="modal">
+    <h3 id="fieldModalTitle">自定义字段</h3>
+    <div class="field"><label>适用分类</label><select id="fl_cat"></select></div>
+    <div class="field"><label>字段名</label><input id="fl_label" placeholder="如：作者 / 平台 / 出版年份"></div>
+    <div class="field"><label>字段类型</label>
+      <div class="chips" id="fl_type_chips">
+        <span data-v="text" class="on">单行文本</span><span data-v="number">数字</span><span data-v="select">下拉选择</span><span data-v="textarea">多行文本</span>
+      </div>
+    </div>
+    <div class="field" id="fl_opts_field" style="display:none"><label>下拉选项（每行一个）</label><textarea id="fl_opts" placeholder="选项A&#10;选项B&#10;选项C"></textarea></div>
+    <div class="modal-btns">
+      <span class="danger-link" id="fl_rm">删除字段</span>
+      <button class="btn btn-ghost" onclick="closeField()">取消</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveField()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ================= 常量 / 存储 ================= */
+const CATS=['动漫','漫画','小说','游戏','影视'];
+const SUBCATS={影视:['电视剧','电影','短剧']};
+/* 全部观看状态（跨分类去重、保序）；状态由「设置」页配置驱动 */
+function allStatusNames(){
+  const sts=(data.settings&&Array.isArray(data.settings.statuses))?data.settings.statuses:[];
+  const seen=new Set(),out=[];
+  sts.forEach(s=>{const n=String(s&&s.name||'').trim();if(n&&!seen.has(n)){seen.add(n);out.push(n);}});
+  if(!out.length)out=['未看','想看','在看','已看完'];
+  return out;
+}
+/* 各分类的进度单位：漫画/小说按章话、影视按集、游戏不展示进度 */
+const PROG_UNITS={
+  动漫:{season:'季名',ep:'集',time:true},
+  漫画:{season:null,ep:'章',time:false},
+  小说:{season:null,ep:'章',time:false},
+  影视:{season:'季名',ep:'集',time:true},
+  游戏:{hide:true}
+};
+/* 自定义分类的进度单位：由用户在「＋新增分类」里设置，存进数据文件 */
+function unitsOf(cat){
+  if(PROG_UNITS[cat])return PROG_UNITS[cat];
+  const c=(data.cats||[]).find(x=>x.name===cat);
+  if(c)return c.hide?{hide:true}:{season:c.season||null,ep:c.ep||'集',time:!!c.time};
+  return {season:null,ep:'集',time:false};
+}
+function allCats(){return CATS.filter(c=>!(data.removedCats||[]).includes(c)).concat((data.cats||[]).map(c=>c.name));}
+/* 自定义配置默认值：4 个内置状态、无自定义字段、默认按状态分组排序 */
+function defaultSettings(){
+  return {
+    statuses:[{name:'未看',cats:[]},{name:'想看',cats:[]},{name:'在看',cats:[]},{name:'已看完',cats:[]}],
+    fields:{},
+    sortBy:{_default:{mode:'status'}}
+  };
+}
+
+let data={cats:[],groups:[],items:[],links:[],removedCats:[],settings:defaultSettings()};
+let currentCat='动漫';
+let collapsed=new Set();
+let stFilter='',subFilter='',fnFilter='';
+const APP=window.appfs; /* Electron 桌面版注入的原生存储桥 */
+
+function buildPayload(){return {app:'娱乐记录本',version:1,updatedAt:new Date().toISOString(),cats:data.cats,groups:data.groups,items:data.items,links:data.links,removedCats:data.removedCats||[],settings:data.settings};}
+function normalize(obj){
+  obj=obj||{};
+  const grp=v=>v&&{id:v.id||('g'+Math.random().toString(36).slice(2,8)),cat:v.cat||'',name:v.name||'',parent:v.parent||null,order:Array.isArray(v.order)?v.order.filter(x=>typeof x==='string'):[]};
+  const itm=v=>v&&{id:v.id||('i'+Math.random().toString(36).slice(2,8)),cat:v.cat||'',group:v.group||null,name:v.name||'',status:v.status||'',note:v.note||'',type:v.type||'',finished:!!v.finished,fields:(v.fields&&typeof v.fields==='object')?v.fields:{},progress:{season:(v.progress&&v.progress.season)||'',ep:(v.progress&&+v.progress.ep)||0,mm:(v.progress&&+v.progress.mm)||0,ss:(v.progress&&+v.progress.ss)||0}};
+  const cat=v=>v&&v.name&&{name:String(v.name).trim(),season:v.season||null,ep:String(v.ep||'集'),time:!!v.time,hide:!!v.hide};
+  const normSettings=s=>{
+    const base=defaultSettings();
+    if(!s||typeof s!=='object')return base;
+    const statuses=Array.isArray(s.statuses)?s.statuses.map(x=>({name:String(x&&x.name||'').trim(),cats:Array.isArray(x&&x.cats)?x.cats.filter(n=>typeof n==='string'):[]})).filter(x=>x.name):base.statuses;
+    const fields={};
+    const f=s.fields;
+    if(f&&typeof f==='object'){for(const k of Object.keys(f)){if(!Array.isArray(f[k]))continue;fields[k]=f[k].map(x=>({key:String(x&&x.key||''),label:String(x&&x.label||''),type:(x&&['text','textarea','number','select'].includes(x.type))?x.type:'text',options:Array.isArray(x&&x.options)?x.options.map(o=>String(o)):[]})).filter(x=>x.label);}}
+    const sortBy={};
+    const sb=s.sortBy;
+    if(sb&&typeof sb==='object')for(const k of Object.keys(sb)){const v=sb[k];if(v&&typeof v==='object')sortBy[k]={mode:['status','manual','name','field'].includes(v.mode)?v.mode:'status',field:String(v.field||''),dir:v.dir==='desc'?'desc':'asc'};}
+    if(!sortBy._default)sortBy._default={mode:'status'};
+    return {statuses,fields,sortBy};
+  };
+  return {cats:Array.isArray(obj.cats)?obj.cats.map(cat).filter(Boolean):[],
+          groups:Array.isArray(obj.groups)?obj.groups.map(grp).filter(Boolean):[],
+          items:Array.isArray(obj.items)?obj.items.map(itm).filter(Boolean):[],
+          links:Array.isArray(obj.links)?obj.links:[],
+          removedCats:Array.isArray(obj.removedCats)?obj.removedCats.filter(n=>typeof n==='string'):[],
+          settings:normSettings(obj.settings)
+         };
+}
+function readPayloadText(text){try{return normalize(JSON.parse(text));}catch(e){return null;}}
+function hasData(){return data.items.length||data.groups.length||data.links.length;}
+function persist(){
+  const text=JSON.stringify(buildPayload(),null,2);
+  APP.write(text).catch(()=>{});
+}
+/* 原生 confirm() 弹窗关闭后可能抢走窗口焦点，导致后续输入框点不出光标；关闭后主动夺回焦点 */
+function confirmDel(msg){const ok=confirm(msg);try{window.focus();}catch(e){}return ok;}
+
+/* ============ 初始清单（依据手写思维导图图片识别重写） ============ */
+function seedData(){
+  const groups=[],items=[],links=[];
+  let g=0,i=0;
+  const G=(cat,name)=>{groups.push({id:'g'+(++g),cat,name});return groups[groups.length-1].id;};
+  const I=(cat,name,status,groupId)=>{items.push({id:'i'+(++i),cat,group:groupId||null,name,status:status||'',note:''});};
+  const series=(cat,name,list,parentId)=>{const gid=G(cat,name);if(parentId){const gd=groups.find(x=>x.id===gid);if(gd)gd.parent=parentId;}list.forEach(n=>I(cat,n,'',gid));return gid;};
+
+  /* ============ 动漫 ============ */
+  const FATE=G('动漫','Fate'); // 大系列
+  series('动漫','TV/剧场版线',['Fate/Zero','UBW','HF','卫宫家今天的饭','幻想嘉年华','魔法少女伊莉雅','空之境界'],FATE);
+  series('动漫','Grand Order线',['绝对魔兽战线','Grand Order','First Order','Moonlight/Lostroom','魔眼收集列车(Fate/prototype)','FSF·Fate/strange Fake'],FATE);
+  I('动漫','JOJO的奇妙冒险 (1-6部)');
+  I('动漫','进击的巨人');I('动漫','寄生兽');I('动漫','东京喰种');
+  I('动漫','绯弹的亚里亚');I('动漫','约会大作战 (1-4季)');I('动漫','空之境界');
+  I('动漫','火影忍者');I('动漫','死神');I('动漫','海贼王');
+  I('动漫','七罪 (1-4.5季)');
+
+  /* ============ 漫画 ============ */
+  const M=(n,st)=>I('漫画',n,st);
+  M('我独自升级');M('我的女友是丧尸');M('末日重启');M('从末日崛起');
+  M('中国惊奇先生');M('大奉打更人');M('重启地下城');M('从红月开始');
+
+  /* ============ 小说 ============ */
+  const X=(n,st,gid)=>I('小说',n,st,gid);
+  /* 三级目录示例：玄幻(顶级) → 辰东作品 → 辰东系 */
+  const XH=G('小说','玄幻');
+  const CHENDONG=series('小说','辰东作品',[],XH);
+  series('小说','辰东系',['遮天','圣墟','神墓','长生界','完美世界'],CHENDONG);
+  const TD=G('小说','斗破同步宇宙');
+  series('小说','天蚕土豆/斗破系',['斗破苍穹','斗罗大陆','大主宰','武动乾坤','元尊'],TD);
+  const FQ=G('小说','番茄作品');
+  series('小说','我吃西红柿/番茄系',['盘龙','星辰变','吞噬星空','莽荒纪','雪鹰领主','寸芒','星峰传说','九鼎记','飞剑问道','沧元图','斗战狂潮'],FQ);
+  const EG=G('小说','耳根作品');
+  series('小说','耳根系',['一念永恒','凡人修仙传','仙逆','求魔','我欲封天','三寸人间'],EG);
+  const LG=G('小说','龙族');X('龙族 (1-5部)','',LG);
+  X('全职高手');X('全职法师');X('大王饶命');X('第一序列');X('夜的命名术');
+  /* 末日/恐怖/灵异题材（图片里密集出现的网文，多可追原作小说或漫画，先归小说可按需改） */
+  const H=['末日乐园','末日孢子','末日蟑螂','末日重生','末日求生','末日刁民','全球进化',
+           '黑暗血时代','狩魔手记','废土','我是传奇','恐怖高校','地狱公寓','轮回乐园',
+           '惊悚乐园','最终进化','我有一座冒险屋','深夜书屋','恐怖广播','玩家凶猛','超神机械师'];
+  H.forEach(n=>X(n));
+
+  /* ============ 游戏（图片字迹潦草，粗略识别，可按需改） ============ */
+  I('游戏','QQ');I('游戏','王者荣耀');I('游戏','天地劫');I('游戏','梦幻西游');
+  I('游戏','第五人格');I('游戏','五开神武4');I('游戏','360');
+
+  /* ============ 影视（电视剧/电影/短剧，用 type 区分，可筛选） ============ */
+  const Mv=(n,type)=>items.push({id:'i'+(++i),cat:'影视',group:null,name:n,status:'',type,note:''});
+  Mv('狂飙','电视剧');Mv('甄嬛传','电视剧');Mv('漫长的季节','电视剧');
+  Mv('流浪地球','电影');Mv('让子弹飞','电影');Mv('哪吒之魔童降世','电影');
+  Mv('逃出大英博物馆','短剧');Mv('我的阿勒泰','短剧');
+
+  /* 收藏夹（示例，可删） */
+  links.push({id:'l1',title:'哔哩哔哩',url:'https://www.bilibili.com',tag:'追番',note:''});
+  links.push({id:'l2',title:'漫画人',url:'https://www.manhuaren.com',tag:'漫画资源',note:''});
+
+  return {cats:[],groups,items,links,removedCats:[]};
+}
+
+/* ============ 启动 ============ */
+async function bootstrap(){
+  document.getElementById("todayLabel").textContent="今天 · "+new Date().toLocaleDateString('zh-CN');
+  data={cats:[],groups:[],items:[],links:[],removedCats:[]};
+  try{const t=await APP.read();const got=t?readPayloadText(t):null;if(got&&(got.items.length||got.groups.length||got.links.length))data=got;}catch(e){}
+  if(!hasData())data=seedData();
+  try{const c=JSON.parse(localStorage.getItem('fanguan_collapsed')||'[]');collapsed=new Set(c);}catch(e){}
+  renderAll();renderStoreBar();
+}
+function saveCollapsed(){try{localStorage.setItem('fanguan_collapsed',JSON.stringify([...collapsed]));}catch(e){}}
+
+/* ============ 状态栏 ============ */
+function renderStoreBar(){
+  const el=document.getElementById("storeBar");
+  el.className='store-bar ok';
+  el.innerHTML='<span>✓ 桌面版 · 自动保存到 <b>'+esc(APP.pathname||'本地文件')+'</b> · 修改即存</span><div class="btns"><button class="btn btn-ghost btn-sm" onclick="openExport()">导出备份</button><button class="btn btn-ghost btn-sm" onclick="openImport()">恢复备份</button></div>';
+}
+
+/* ============ 渲染 ============ */
+const esc=s=>(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function renderTabs(){
+  const t=document.getElementById("tabs");
+  const cells=allCats().map(c=>{const cnt=data.items.filter(x=>x.cat===c).length;
+    return '<div class="tab'+(currentCat===c?' on':'')+'" onclick="setTab(\''+c+'\')">'+c+'<span class="cnt">'+cnt+'</span></div>';
+  });
+  cells.push('<div class="tab add" title="新增自定义分类" onclick="openAddCat()">＋</div>');
+  cells.push('<div class="tab'+(currentCat==='收藏夹'?' on':'')+'" onclick="setTab(\'收藏夹\')">收藏夹<span class="cnt">'+data.links.length+'</span></div>');
+  cells.push('<div class="tab'+(currentCat==='统计'?' on':'')+'" onclick="setTab(\'统计\')">📊 统计</div>');
+  cells.push('<div class="tab'+(currentCat==='设置'?' on':'')+'" onclick="setTab(\'设置\')">⚙ 设置</div>');
+  t.innerHTML=cells.join('');
+}
+function currentTab(){
+  return currentCat; // '动漫'/'漫画'/'小说'/'游戏'/'收藏夹'
+}
+function setTab(c){currentCat=c;renderAll();}
+
+/* ============ 批量删除 ============ */
+let batchMode=false,batchSel=new Set(),batchIds=[];
+function toggleBatch(){batchMode=!batchMode;batchSel.clear();renderMain();}
+function batchCancel(){batchMode=false;batchSel.clear();renderMain();}
+function batchToggle(id){batchSel.has(id)?batchSel.delete(id):batchSel.add(id);renderMain();}
+function batchAll(){
+  if(batchSel.size===batchIds.length)batchSel.clear();
+  else batchIds.forEach(id=>batchSel.add(id));
+  renderMain();
+}
+function batchDelete(){
+  if(!batchSel.size){toast('请先勾选要删除的作品');return;}
+  if(!confirmDel('确定删除选中的 '+batchSel.size+' 部作品？'))return;
+  data.items=data.items.filter(x=>!batchSel.has(x.id));
+  batchSel.clear();
+  persist();renderAll();
+  toast('已删除所选作品');
+}
+
+function groupName(gid){const g=data.groups.find(x=>x.id===gid);return g?g.name:'';}
+
+function renderAll(){renderTabs();renderMain();renderStoreBar();}
+/* ============ 筛选 ============ */
+function renderFilters(){
+  let s='<select class="flt" title="按观看状态筛选" onchange="setStatusFilter(this.value)"><option value="">状态：全部</option>'+effectiveStatuses(currentTab()).map(o=>'<option value="'+o+'"'+(stFilter===o?' selected':'')+'>'+o+'</option>').join('')+'</select>';
+  s+='<select class="flt" title="按整部作品是否完结筛选" onchange="setFinishFilter(this.value)"><option value="">作品：全部</option><option value="已完结"'+((fnFilter==='已完结')?' selected':'')+'>已完结</option><option value="连载中"'+((fnFilter==='连载中')?' selected':'')+'>连载中</option></select>';
+  const subs=SUBCATS[currentTab()];
+  if(subs)s+='<select class="flt" title="按类型筛选" onchange="setSubFilter(this.value)"><option value="">类型：全部</option>'+subs.map(o=>'<option value="'+o+'"'+((subFilter===o||(subFilter==='全部'&&o===''))?' selected':'')+'>'+o+'</option>').join('')+'</select>';
+  return s;
+}
+function setStatusFilter(v){stFilter=v;renderMain();}
+function setSubFilter(v){subFilter=v;renderMain();}
+function setFinishFilter(v){fnFilter=v;renderMain();}
+function renderMain(){
+  const m=document.getElementById("main");
+  if(currentTab()==='收藏夹'){renderLinks(m);return;}
+  if(currentTab()==='统计'){renderStats(m);return;}
+  if(currentTab()==='设置'){renderSettings(m);return;}
+  const cat=currentCat;
+  /* 展示排序：按当前分类配置的排序方式（状态/名称/字段/手动） */
+  const sortItems=arr=>sortedByMode(arr,cat);
+  const eff=it=>(!stFilter||((it.status||'未看')===stFilter))&&(!subFilter||(subFilter==='全部'?true:(it.type||'')===subFilter))&&(!fnFilter||(fnFilter==='已完结'?!!it.finished:!it.finished));
+  const groups=()=>data.groups.filter(x=>x.cat===cat);
+  const childrenOf=pid=>groups().filter(x=>(x.parent||'')===(pid||''));
+  const grpItems=gid=>data.items.filter(x=>x.cat===cat&&x.group===gid&&eff(x));
+  const subCount=gid=>data.items.filter(x=>x.cat===cat&&x.group===gid&&eff(x)).length;
+  const effItems=data.items.filter(x=>x.cat===cat&&eff(x));
+  const standalone=data.items.filter(x=>x.cat===cat&&!x.group&&eff(x));
+  /* 兼容历史孤儿数据：parent 指向不存在的系列时按顶级显示 */
+  const topLevel=groups().filter(x=>!x.parent||!groups().some(y=>y.id===x.parent));
+
+  function groupBlock(g,depth){
+    const kids=childrenOf(g.id);
+    const its=sortItems(grpItems(g.id));
+    const isC=collapsed.has(g.id);
+    const filtering=!!(stFilter||subFilter);
+    const kidsV=kids.filter(c=>!filtering||grpItems(c.id).length);
+    if(filtering&&!kidsV.length&&!its.length)return '';
+    if(depth>10)return ''; /* 防数据异常导致无限递归 */
+    const hasKids=!!kidsV.length;
+    const total=its.length+kidsV.reduce((a,c)=>a+subCount(c.id),0);
+    const pad=depth*18;
+    const headCls=hasKids?'grand-head':'group-head';
+    const headStyle=hasKids?'':' style="padding-left:'+(12+pad)+'px"';
+    const gcount=hasKids?' '+kidsV.length+' 系列 · '+total+' 作品':' '+its.length;
+    const ops='<span class="ops" onclick="event.stopPropagation()">'+
+      '<button class="mini" title="一键置顶" onclick="moveNodeToTop(\''+g.id+'\')">⏫</button>'+
+      '<button class="mini" title="上移" onclick="moveGroup(\''+g.id+'\',-1)">⬆</button>'+
+      '<button class="mini" title="下移" onclick="moveGroup(\''+g.id+'\',1)">⬇</button>'+
+      '<button class="mini" title="编辑系列" onclick="openEditGroup(\''+g.id+'\')">✏️</button>'+
+    '</span>';
+    const head='<div class="'+headCls+(isC?' collapsed':'')+'"'+headStyle+' data-g="'+g.id+'" onclick="headClick(\''+g.id+'\',event)">'+
+      '<span class="drag" title="按住 ⠿ 拖动排序">⠿</span><span class="chev">▼</span><span class="gname">'+esc(g.name)+'</span><span class="gcount">'+gcount+'</span>'+ops+'</div>';
+    let body='';
+    if(!isC){
+      const bCls=hasKids?'grand-body':'group-body';
+      const bStyle=hasKids?'':' style="padding-left:'+pad+'px"';
+      let inner;
+      if(filtering){
+        /* 筛选视图下仍按「作品→子系列」展示，避免混排与筛选结果冲突 */
+        inner=its.map(itemHTML).join('')+kidsV.map(k=>groupBlock(k,depth+1)).join('');
+      }else{
+        /* 普通视图：作品与子系列按 g.order 混排，系列可被移到作品上方 */
+        const itemMap={};its.forEach(x=>itemMap[x.id]=itemHTML(x));
+        const kidMap={};kidsV.forEach(k=>kidMap[k.id]=groupBlock(k,depth+1));
+        inner=mixedIds(g.cat,g.id).map(id=>itemMap[id]||kidMap[id]||'').join('');
+      }
+      body='<div class="'+bCls+'"'+bStyle+'>'+
+        inner+
+        '<div class="addin" onclick="openAddSub(\''+g.id+'\')">＋ 在 <b>'+esc(g.name)+'</b> 里加小系列</div>'+
+        '<div class="addin" onclick="openAddItem(\''+g.id+'\')">＋ 在 <b>'+esc(g.name)+'</b> 里加作品</div>'+
+      '</div>';
+    }
+    return '<div class="'+(hasKids?'grand':'group')+'">'+head+body+'</div>';
+  }
+
+  const canDelCat=currentCat!=='收藏夹'&&currentCat!=='统计';
+  let html='<div class="toolbar">'+renderFilters()+'<span class="spacer"></span>'+
+    (canDelCat?'<button class="btn btn-danger btn-sm" onclick="delCurCat()">🗑 删除分类</button>':'')+
+    '<button class="btn btn-ghost btn-sm'+(batchMode?' on-batch':'')+'" onclick="toggleBatch()">批量</button>'+
+    '<button class="btn btn-ghost btn-sm" onclick="openGroupManager()">🗂 系列管理</button>'+
+    '<button class="btn btn-ghost btn-sm" onclick="openAddGroup()">＋ 加系列</button>'+
+    '<button class="btn btn-primary btn-sm" onclick="openAddItem()">＋ 加作品</button></div>';
+  if(batchMode){
+    batchIds=effItems.map(x=>x.id);
+    const total=batchIds.length;
+    html+='<div class="batch-bar"><span class="bcnt">已选 <b>'+batchSel.size+'</b> / '+total+' 项</span>'+
+      '<button class="btn btn-ghost btn-sm" onclick="batchAll()">'+(batchSel.size&&batchSel.size===total?'全不选':'全选')+'</button>'+
+      '<button class="btn btn-danger btn-sm" onclick="batchDelete()">删除所选</button>'+
+      '<button class="btn btn-ghost btn-sm" onclick="batchCancel()">退出批量</button></div>';
+  }
+  if(!topLevel.length&&!standalone.length&&!effItems.length){html+='<div class="panel empty-mini">'+ (stFilter||subFilter?'此筛选下没有作品，换个筛选项看看':'还没有内容，点上方「＋加系列」或「＋加作品」开始<br>（可先建"Fate"大系列，再往里加小系列、加作品）') +'</div>';}
+  for(const g of topLevel){
+    html+= groupBlock(g,0);
+  }
+  if(standalone.length){
+    html+='<div class="panel" style="padding:12px 16px;"><h2>其他作品（未分类）</h2>'+sortItems(standalone).map(itemHTML).join('')+
+      '<div class="addin" onclick="openAddItem(\'none\')">＋ 加作品</div></div>';
+  }
+  m.innerHTML=html;
+  if(batchMode)return;
+  /* 统一拖拽排序：作品与系列可在同一父容器内互相拖拽换位（只有 ⠿ 手柄能拖） */
+  m.querySelectorAll('.item,.group-head,.grand-head').forEach(el=>{
+    el.addEventListener('dragover',e=>{e.preventDefault();if(!el.classList.contains('dragover'))el.classList.add('dragover');});
+    el.addEventListener('dragleave',()=>el.classList.remove('dragover'));
+    el.addEventListener('drop',e=>{
+      e.preventDefault();el.classList.remove('dragover');
+      const raw=(e.dataTransfer&&e.dataTransfer.getData('text/plain'))||'';
+      if(raw.length<3||raw[1]!==':')return;
+      const type=raw[0],fromId=raw.slice(2);
+      const target=nodeInfo(el);if(!target)return;
+      const from=type==='i'?data.items.find(x=>x.id===fromId):data.groups.find(x=>x.id===fromId);
+      if(!from||from.cat!==target.cat||fromId===target.id)return;
+      const fromParent=(type==='i'?(from.group||''):(from.parent||''));
+      if(fromParent===target.parent){
+        /* 同一父容器：在混排列表内插入到目标之后（顶级系列走同层换位） */
+        if(target.parent){insertMixed(target.cat,target.parent,fromId,target.id);}
+        else if(type==='g'&&target.type==='g'){groupDropInto(target.id,fromId);}
+      }else if(type==='i'&&target.type==='i'){
+        /* 跨容器移动作品（归属随目标） */
+        moveItemInto(fromId,target.id);
+      }
+    });
+    const grip=el.querySelector('.drag');
+    if(grip){grip.draggable=true;
+      grip.addEventListener('dragstart',e=>{
+        const n=nodeInfo(el);
+        e.dataTransfer&&e.dataTransfer.setData('text/plain',n?(n.type+':'+n.id):'');
+        el.classList.add('dragover');
+      });
+      grip.addEventListener('dragend',()=>el.classList.remove('dragover'));
+    }
+  });
+}
+function setProg(id,field,v){
+  const it=data.items.find(x=>x.id===id);if(!it)return;
+  if(!it.progress)it.progress={season:'',ep:0,mm:0,ss:0};
+  if(field==='season'){it.progress.season=String(v||'');}
+  else{let n=parseInt(v,10)||0;if(field==='ep')it.progress.ep=n;else if(field==='mm')it.progress.mm=Math.min(59,n);else if(field==='ss')it.progress.ss=Math.min(59,n);}
+  persist();renderMain();
+}
+function itemHTML(it){
+  if(batchMode){
+    const on=batchSel.has(it.id);
+    return '<div class="item-wrap"><div class="bitem'+(on?' bsel':'')+'" onclick="batchToggle(\''+it.id+'\')">'+
+      '<span class="bcheck">'+(on?'☑':'☐')+'</span>'+
+      '<span class="iname'+(it.finished?' finish':'')+'">'+esc(it.name)+'</span>'+
+      (it.note?'<span class="note-dot" title="'+esc(it.note)+'">📝</span>':'')+
+      '<span class="status '+(it.status==='在看'?'watching':'todo')+'">'+esc(it.status||'未看')+'</span></div></div>';
+  }
+  const st=it.status||'未看';
+  const isWatch=st==='在看';
+  const cls= st==='在看'?'watching':'todo';
+  const p=it.progress||{};
+  const units=unitsOf(it.cat);
+  const seaPh=units.season==='季名'?'如：第一季':(units.season==='篇章'?'如：武道篇':(units.season==='卷名'?'如：第一卷':(units.season?('如：第一'+units.season):'')));
+  let prog='';
+  if(isWatch&&units&&!units.hide){
+    prog='<div class="prog">'+
+      '<span class="pl">看到</span>'+
+      (units.season?'<span class="pi">'+units.season+'<input class="s" value="'+esc(p.season||'')+'" onchange="setProg(\''+it.id+'\',\'season\',this.value)" placeholder="'+seaPh+'"></span>':'')+
+      '<span class="pi">'+units.ep+'<input type="number" min="0" value="'+(p.ep||0)+'" onchange="setProg(\''+it.id+'\',\'ep\',this.value)"></span>'+
+      (units.time?'<span class="pi">分<input type="number" min="0" max="59" value="'+(p.mm||0)+'" onchange="setProg(\''+it.id+'\',\'mm\',this.value)"></span>':'')+
+      '<span class="sum">'+(units.season&&p.season?('第'+esc(p.season)+' '):'')+'第'+(p.ep||0)+units.ep+(p.mm&&units.time?(' · '+(p.mm||0)+'分'):'')+'</span>'+
+      '<span class="tip">（点击输入即自动保存）</span>'+
+    '</div>';
+  }
+  const cf=fieldsOf(it.cat).map(f=>{const v=(it.fields&&it.fields[f.key])||'';return v?('<span class="cfield">'+esc(f.label)+'：'+esc(v)+'</span>'):'';}).join('');
+  const main='<div class="item" data-i="'+it.id+'" data-cat="'+it.cat+'" data-g="'+(it.group||'')+'">'+
+    '<span class="drag" title="按住 ⠿ 拖动排序">⠿</span>'+
+    '<span class="iname'+(it.finished?' finish':'')+'" onclick="openEditItem(\''+it.id+'\')">'+esc(it.name)+'</span>'+
+    (it.note?'<span class="note-dot" title="'+esc(it.note)+'">📝</span>':'')+
+    (it.type?'<span class="itype">'+esc(it.type)+'</span>':'')+
+    cf+
+    (it.finished?'<span class="endtag" title="整部作品已完结">📺已完结</span>':'')+
+    '<span class="status '+cls+'" onclick="cycleStatus(\''+it.id+'\')" title="观看状态：点击切换（→ '+esc(nextStatusName(it))+'）">'+esc(st)+'</span>'+
+    '<span class="rops" onclick="event.stopPropagation()">'+
+    '<button class="mini" title="一键置顶" onclick="moveNodeToTop(\''+it.id+'\')">⏫</button>'+
+    '<button class="mini" title="上移" onclick="moveItemById(\''+it.id+'\',-1)">⬆</button>'+
+    '<button class="mini" title="下移" onclick="moveItemById(\''+it.id+'\',1)">⬇</button>'+
+    '<button class="mini '+(it.finished?'mini-revert':'mini-done')+'" title="'+(it.finished?'撤回已完结（恢复连载中）':'标记整部作品已完结')+'" onclick="toggleFinish(\''+it.id+'\')">'+(it.finished?'↺':'✓完')+'</button>'+
+    '<button class="mini" title="编辑" onclick="openEditItem(\''+it.id+'\')">✏️</button>'+
+    '</span></div>';
+  return '<div class="item-wrap">'+main+prog+'</div>';
+}
+
+/* ============ 分类切换用 currentTab 判断收藏夹 ============ */
+/* （收藏夹标签文字与分类一起渲染在 tabs） */
+function setTabLabel(){}
+
+/* ============ 移动/排序 ============ */
+/* 观看状态注册表：settings.statuses（cats 空=全部分类），返回该分类可用状态名有序数组 */
+function effectiveStatuses(cat){
+  const sts=(data.settings&&Array.isArray(data.settings.statuses))?data.settings.statuses:[];
+  const out=sts.filter(s=>!s.cats||!s.cats.length||s.cats.includes(cat)).map(s=>s.name);
+  return out.length?out:['未看','想看','在看','已看完'];
+}
+function statusRank(it,cat){
+  if(it.finished)return -1;
+  const order=effectiveStatuses(cat);
+  const idx=order.indexOf(it.status||'未看');
+  return idx<0?order.length+1:idx;
+}
+function sortModeOf(cat){
+  const sb=(data.settings&&data.settings.sortBy)||{};
+  return sb[cat]||sb._default||{mode:'status'};
+}
+function cmpByMode(a,b,cat){
+  const m=sortModeOf(cat);
+  let r=0;
+  if(m.mode==='status'){r=statusRank(a,cat)-statusRank(b,cat);}
+  else if(m.mode==='name'){r=String(a.name||'').localeCompare(String(b.name||''),'zh');}
+  else if(m.mode==='field'){
+    const va=a.fields?String(a.fields[m.field]||'').trim():'';
+    const vb=b.fields?String(b.fields[m.field]||'').trim():'';
+    const na=parseFloat(va),nb=parseFloat(vb);
+    if(va===''&&vb==='')r=0;
+    else if(va==='')r=1;
+    else if(vb==='')r=-1;
+    else if(!isNaN(na)&&!isNaN(nb))r=na-nb;
+    else r=va.localeCompare(vb,'zh');
+    if(m.dir==='desc')r=-r;
+  }
+  /* manual 或其他：返回 0 保持原顺序 */
+  if(r===0)r=String(a.name||'').localeCompare(String(b.name||''),'zh');
+  return r;
+}
+function sortedByMode(arr,cat){
+  const m=sortModeOf(cat);
+  if(m.mode==='manual')return arr.slice();
+  return arr.slice().sort((a,b)=>cmpByMode(a,b,cat));
+}
+/* 用户手动排序(拖/按钮/置顶)时，自动把该分类切到「手动排序」，否则改动会被自动排序覆盖 */
+function ensureManualSort(cat){
+  const sb=(data.settings&&data.settings.sortBy)||{};
+  const cur=sb[cat]||sb._default||{mode:'status'};
+  if(cur.mode!=='manual'){
+    data.settings.sortBy=data.settings.sortBy||{};
+    data.settings.sortBy[cat]={mode:'manual',field:'',dir:'asc'};
+  }
+}
+/* 一键置顶：作品或系列移到其所在容器（混排/同级列表）最前 */
+function moveNodeToTop(id){
+  const it=data.items.find(x=>x.id===id);
+  if(it){
+    if(it.group){
+      const ids=mixedIds(it.cat,it.group);
+      const i=ids.indexOf(id);
+      if(i<=0)return;
+      ensureManualSort(it.cat);
+      ids.splice(i,1);ids.unshift(id);
+      persistMixed(it.cat,it.group,ids);
+    }else{
+      if(itFinishedTop(id))return;
+      ensureManualSort(it.cat);
+      ordItems(it.cat,it.group,data.items.filter(x=>x.cat===it.cat&&(x.group||'')==='').map(x=>x.id));
+      const arr=data.items.filter(x=>x.cat===it.cat&&(x.group||'')==='');
+      const i=arr.findIndex(x=>x.id===id);
+      const [n]=arr.splice(i,1);arr.unshift(n);
+      persist();renderMain();
+    }
+    return;
+  }
+  const g=data.groups.find(x=>x.id===id);
+  if(g){
+    if(g.parent){
+      const ids=mixedIds(g.cat,g.parent);
+      const i=ids.indexOf(id);
+      if(i<=0)return;
+      ensureManualSort(g.cat);
+      ids.splice(i,1);ids.unshift(id);
+      persistMixed(g.cat,g.parent,ids);
+    }else{
+      const arr=data.groups.filter(x=>x.cat===g.cat&&(x.parent||'')==='');
+      const i=arr.findIndex(x=>x.id===id);
+      if(i<=0)return;
+      const t=data.groups;
+      const a=t.findIndex(x=>x.id===id);
+      const [n]=t.splice(a,1);t.unshift(n);
+      persist();renderMain();
+    }
+  }
+}
+function itFinishedTop(id){
+  /* 辅助：standalone 作品是否已在所在分类首行 */
+  const arr=data.items.filter(x=>x.cat===data.items.find(y=>y.id===id).cat&&(x.group||'')==='');
+  return arr[0]&&arr[0].id===id;
+}
+function directItemsOf(cat,gid){return data.items.filter(x=>x.cat===cat&&(x.group||'')===(gid||''));}
+function directKidsOf(cat,gid){return data.groups.filter(x=>x.cat===cat&&(x.parent||'')===(gid||''));}
+/* 某系列下「直接作品 + 直接子系列」的混合顺序（id 数组：作品 i 开头 / 系列 g 开头） */
+function mixedIds(cat,gid){
+  const its=sortedByMode(directItemsOf(cat,gid),cat).map(x=>x.id);
+  const kids=directKidsOf(cat,gid).map(x=>x.id);
+  const all=its.concat(kids);
+  const g=data.groups.find(x=>x.id===gid);
+  const order=(g&&Array.isArray(g.order))?g.order.slice():[];
+  const known=new Set(all),seen=new Set(),out=[];
+  for(const id of order){if(known.has(id)&&!seen.has(id)){out.push(id);seen.add(id);}}
+  for(const id of all){if(!seen.has(id))out.push(id);}
+  return out;
+}
+function persistMixed(cat,gid,ids){
+  const g=data.groups.find(x=>x.id===gid);
+  if(!g)return;
+  g.order=ids;
+  persist();renderMain();
+}
+function moveMixed(cat,gid,nodeId,dir){
+  ensureManualSort(cat);
+  const ids=mixedIds(cat,gid);
+  const idx=ids.indexOf(nodeId);
+  const j=idx+dir;
+  if(idx<0||j<0||j>=ids.length)return;
+  const t=ids[idx];ids[idx]=ids[j];ids[j]=t;
+  persistMixed(cat,gid,ids);
+}
+function insertMixed(cat,gid,nodeId,targetId){
+  if(nodeId===targetId)return;
+  ensureManualSort(cat);
+  const ids=mixedIds(cat,gid);
+  const fi=ids.indexOf(nodeId),ti=ids.indexOf(targetId);
+  if(fi<0||ti<0)return;
+  ids.splice(fi,1);
+  const t2=ids.indexOf(targetId);
+  ids.splice(t2+1,0,nodeId);
+  persistMixed(cat,gid,ids);
+}
+function nodeInfo(el){
+  if(!el)return null;
+  if(el.classList.contains('item')){
+    const it=data.items.find(x=>x.id===el.dataset.i);
+    return it?{type:'i',id:it.id,cat:it.cat,parent:(it.group||'')}:null;
+  }
+  if(el.classList.contains('group-head')||el.classList.contains('grand-head')){
+    const g=data.groups.find(x=>x.id===el.dataset.g);
+    return g?{type:'g',id:g.id,cat:g.cat,parent:(g.parent||'')}:null;
+  }
+  return null;
+}
+function ordItems(cat,gid,orderIds){
+  const seg=data.items.filter(x=>x.cat===cat&&(x.group||'')===(gid||''));
+  const rest=data.items.filter(x=>x.cat!==cat||(x.group||'')!==(gid||''));
+  const sorted=[];
+  for(const id of orderIds){const it=seg.find(x=>x.id===id);if(it){sorted.push(it);seg.splice(seg.indexOf(it),1);}}
+  data.items=rest.concat(seg).concat(sorted);
+}
+function moveItemById(id,dir){
+  const it=data.items.find(x=>x.id===id);if(!it)return;
+  /* 有归属系列的作品在混排列表内移动（可跨过子系列） */
+  if(it.group){moveMixed(it.cat,it.group,id,dir);return;}
+  ensureManualSort(it.cat);
+  const seg=data.items.filter(x=>x.cat===it.cat&&(x.group||'')===(it.group||''));
+  const idx=seg.findIndex(x=>x.id===id);
+  const swap=seg[idx+dir];if(!swap)return;
+  ordItems(it.cat,it.group,seg.map(x=>x.id));
+  // 交换
+  const arr=data.items.filter(x=>x.cat===it.cat&&(x.group||'')===(it.group||''));
+  const i=arr.findIndex(x=>x.id===id),j=arr.findIndex(x=>x.id===swap.id);
+  const t=arr[i];arr[i]=arr[j];arr[j]=t;
+  persist();renderMain();
+}
+function moveItemInto(fromId,toId){
+  const from=data.items.find(x=>x.id===fromId);if(!from)return;
+  const to=data.items.find(x=>x.id===toId);if(!to)return;
+  if(from.cat!==to.cat)return toast('只能在同一分类内排序');
+  ensureManualSort(from.cat);
+  from.group=to.group;
+  // 放到目标之后
+  const seg=data.items.filter(x=>x.cat===from.cat&&(x.group||'')===(from.group||''));
+  const arr=data.items;
+  const fi=arr.findIndex(x=>x.id===fromId);arr.splice(fi,1);
+  const ti=arr.findIndex(x=>x.id===toId);
+  arr.splice(ti+1,0,from);
+  persist();renderMain();
+}
+function moveGroup(id,dir){
+  const g=data.groups.find(x=>x.id===id);if(!g)return;
+  /* 有上级的子系列在其父系列混排列表内移动（可跨过作品） */
+  if(g.parent){moveMixed(g.cat,g.parent,id,dir);return;}
+  const gs=data.groups.filter(x=>x.cat===g.cat&&(x.parent||'')===(g.parent||''));
+  const idx=gs.findIndex(x=>x.id===id),sw=gs[idx+dir];if(!sw)return;
+  const arr=data.groups;
+  const a=arr.findIndex(x=>x.id===id),b=arr.findIndex(x=>x.id===sw.id);
+  const t=arr[a];arr[a]=arr[b];arr[b]=t;persist();renderMain();
+}
+function groupDropInto(targetId,fromId){
+  if(fromId===targetId)return;
+  const f=data.groups.find(x=>x.id===fromId),t=data.groups.find(x=>x.id===targetId);
+  if(!f||!t||f.cat!==t.cat||(f.parent||'')!==(t.parent||''))return; /* 仅同层换位 */
+  const arr=data.groups;
+  const fi=arr.findIndex(x=>x.id===fromId);
+  const [fg]=arr.splice(fi,1);
+  const ti=arr.findIndex(x=>x.id===targetId);
+  arr.splice(ti+1,0,fg);
+  persist();renderMain();
+  if(gmOpen)renderGroupManager();
+}
+function toggleGroup(id){collapsed.has(id)?collapsed.delete(id):collapsed.add(id);saveCollapsed();renderMain();}
+/* 系列头部点击：点到按钮(编辑/上移/下移)只响应按钮，不折叠 */
+function headClick(id,ev){
+  if(ev&&ev.target&&ev.target.closest){
+    try{const el=ev.target.closest('button,.ops');if(el){return;}}catch(e){}
+  }
+  toggleGroup(id);
+}
+
+/* ============ 状态切换（观看维度：未看/想看/在看）+ 完结开关（作品维度） ============ */
+function nextStatusName(it){
+  const order=effectiveStatuses(it.cat);
+  const cur=(it.status&&it.status!=='')?it.status:order[0];
+  const idx=order.indexOf(cur);
+  return idx<0?order[0]:order[(idx+1)%order.length];
+}
+function cycleStatus(id){
+  const it=data.items.find(x=>x.id===id);if(!it)return;
+  it.status=nextStatusName(it);
+  persist();renderMain();
+}
+function toggleFinish(id){
+  const it=data.items.find(x=>x.id===id);if(!it)return;
+  it.finished=!it.finished;
+  persist();renderMain();
+}
+
+/* ============ 作品弹窗 ============ */
+let editingItem=null,editingItemGroup=null,ivFinished=false;
+function renderFinChips(){
+  document.querySelectorAll('#iv_fin_chips span').forEach(s=>s.classList.toggle('on',s.dataset.v===String(ivFinished?1:0)));
+}
+function clearProgFields(){['iv_season','iv_ep','iv_mm','iv_ss'].forEach(k=>{const e=document.getElementById(k);if(e)e.value='';});}
+function adaptProgUI(cat){
+  const units=unitsOf(cat);
+  const f=document.getElementById("iv_prog_field"),tb=document.getElementById("iv_time_box");
+  if(!f)return;
+  if(units.hide){f.style.display='none';return;}
+  f.style.display='';
+  if(tb)tb.style.display=units.time?'':'none';
+  const sLbl=document.getElementById("iv_season_lbl"),sInp=document.getElementById("iv_season");
+  if(sLbl&&sInp){sLbl.style.display=units.season?'':'none';sInp.style.display=units.season?'':'none';}
+  if(sLbl&&units.season)sLbl.textContent=units.season+'（可选）';
+  const el=document.getElementById("iv_ep_lbl");
+  el.textContent=units.ep==='集'?'第几集':units.ep==='话'?'第几话':units.ep==='章'?'第几章':('第几'+units.ep);
+  const tip=document.getElementById("iv_prog_tip");
+  if(tip)tip.textContent=units.time?'记录到「'+units.ep+' · 分」，记下停在哪里':'按「'+units.ep+'」记录进度即可（如：第 12 '+units.ep+'）';
+  const dl=document.getElementById("statusOpts");
+  if(dl&&!dl.innerHTML)dl.innerHTML=effectiveStatuses(cat).map(s=>'<option value="'+esc(s)+'">').join('');
+}
+function openAddItem(groupId){
+  editingItem=null;editingItemGroup=groupId||null;
+  document.getElementById("itemModalTitle").textContent="加作品"+(editingItemGroup?(' · 系列『'+groupName(editingItemGroup)+'』'):'');
+  document.getElementById("iv_name").value="";document.getElementById("iv_status").value="";document.getElementById("iv_note").value="";
+  clearProgFields();
+  document.getElementById("iv_type_field").style.display=(currentTab()==='影视')?'':'none';
+  const ityp=document.getElementById("iv_type");ityp.value=(subFilter&&subFilter!=='全部')?subFilter:'';
+  fillGroupSelect();
+  document.getElementById("iv_group").value=editingItemGroup||'';
+  document.getElementById("iv_rm").style.visibility="hidden";
+  renderStatusChips();
+  ivFinished=false;renderFinChips();
+  renderCustomFields(currentTab());
+  adaptProgUI(currentTab());
+  showModal('itemModal');
+  /* 自动聚焦名称输入框，打开即可直接打字 */
+  setTimeout(()=>{const el=document.getElementById("iv_name");if(el)el.focus();},80);
+}
+function openEditItem(id){
+  const it=data.items.find(x=>x.id===id);if(!it)return;
+  editingItem=id;
+  const p=it.progress||{};
+  document.getElementById("itemModalTitle").textContent="编辑 · "+it.name;
+  document.getElementById("iv_name").value=it.name;
+  document.getElementById("iv_status").value=it.status||'';
+  document.getElementById("iv_note").value=it.note||'';
+  document.getElementById("iv_season").value=p.season||'';
+  document.getElementById("iv_ep").value=p.ep||0;
+  document.getElementById("iv_mm").value=p.mm||0;
+  document.getElementById("iv_ss").value=p.ss||0;
+  document.getElementById("iv_type_field").style.display=(currentTab()==='影视')?'':'none';
+  document.getElementById("iv_type").value=it.type||'';
+  fillGroupSelect();
+  document.getElementById("iv_group").value=it.group||'';
+  document.getElementById("iv_rm").style.visibility="visible";
+  renderStatusChips();
+  ivFinished=!!it.finished;renderFinChips();
+  renderCustomFields(it.cat,it.fields||{});
+  adaptProgUI(it.cat);
+  showModal('itemModal');
+  /* 自动聚焦名称输入框（value 赋值后 focus 光标自然在末尾） */
+  setTimeout(()=>{const el=document.getElementById("iv_name");if(el)el.focus();},80);
+}
+function fillGroupSelect(){
+  const sel=document.getElementById("iv_group");
+  let o='<option value="">（其他作品）</option>';
+  for(const g of data.groups.filter(x=>x.cat===currentTab()))o+='<option value="'+g.id+'">'+esc(g.name)+'</option>';
+  sel.innerHTML=o;
+}
+function renderStatusChips(){
+  const box=document.getElementById("iv_chips");
+  box.innerHTML=effectiveStatuses(currentTab()).map(s=>'<span onclick="setStatusInput(this.dataset.v)" data-v="'+esc(s)+'">'+esc(s)+'</span>').join('');
+}
+function setStatusInput(s){document.getElementById("iv_status").value=s;}
+/* 自定义字段注册表：settings.fields[cat] = [{key,label,type,options}] */
+function fieldsOf(cat){const f=(data.settings&&data.settings.fields)||{};return f[cat]||[];}
+function renderCustomFields(cat,values){
+  const box=document.getElementById("iv_custom");if(!box)return;
+  const fs=fieldsOf(cat);values=values||{};
+  if(!fs.length){box.innerHTML='';box.style.display='none';return;}
+  box.style.display='';
+  box.innerHTML=fs.map(f=>{
+    const val=values[f.key]||'';
+    if(f.type==='textarea')return '<div class="field"><label>'+esc(f.label)+'</label><textarea data-ck="'+esc(f.key)+'" placeholder="'+esc(f.label)+'">'+esc(val)+'</textarea></div>';
+    if(f.type==='select')return '<div class="field"><label>'+esc(f.label)+'</label><select data-ck="'+esc(f.key)+'"><option value="">（未指定）</option>'+f.options.map(o=>'<option value="'+esc(o)+'"'+(val===o?' selected':'')+'>'+esc(o)+'</option>').join('')+'</select></div>';
+    return '<div class="field"><label>'+esc(f.label)+'</label><input data-ck="'+esc(f.key)+'" type="'+(f.type==='number'?'number':'text')+'" value="'+esc(val)+'" placeholder="'+esc(f.label)+'"></div>';
+  }).join('');
+}
+function collectCustomFields(){
+  const box=document.getElementById("iv_custom"),res={};
+  if(!box)return res;
+  box.querySelectorAll('[data-ck]').forEach(el=>{res[el.dataset.ck]=el.value.trim();});
+  return res;
+}
+function closeItem(){hideModal('itemModal');}
+function saveItem(){
+  const name=document.getElementById("iv_name").value.trim();
+  if(!name){toast("请输入作品名称");return;}
+  /* 同分类下同名防重复：新增时全查，编辑时排除自身 */
+  const dup=data.items.find(x=>x.cat===currentTab()&&x.name===name&&x.id!==editingItem);
+  if(dup){toast("「"+currentTab()+"」分类下已有同名作品《"+name+"》，请换个名称");return;}
+  const status=document.getElementById("iv_status").value.trim();
+  const group=document.getElementById("iv_group").value;
+  const note=document.getElementById("iv_note").value.trim();
+  const type=document.getElementById("iv_type").value.trim();
+  const fields=collectCustomFields();
+  const progress={season:document.getElementById("iv_season").value.trim(),
+    ep:parseInt(document.getElementById("iv_ep").value,10)||0,
+    mm:Math.min(59,parseInt(document.getElementById("iv_mm").value,10)||0),
+    ss:Math.min(59,parseInt(document.getElementById("iv_ss").value,10)||0)};
+  if(editingItem){
+    const it=data.items.find(x=>x.id===editingItem);
+    if(it){it.name=name;it.status=status;it.group=group||null;it.note=note;it.type=type;it.fields=fields;it.progress=progress;it.finished=ivFinished;}
+  }else{
+    data.items.push({id:'i'+Date.now().toString(36),cat:currentTab(),group:group||null,name,status,note,progress,type,fields,finished:ivFinished});
+  }
+  persist();renderAll();hideModal('itemModal');toast("已保存");
+}
+function delItem(){
+  if(!editingItem)return;
+  if(!confirmDel("删除这条作品？"))return;
+  data.items=data.items.filter(x=>x.id!==editingItem);
+  persist();renderAll();hideModal('itemModal');toast("已删除");
+}
+document.getElementById("iv_rm").onclick=delItem;
+
+/* ============ 系列弹窗 ============ */
+let editingGroup=null;
+function descendantsOf(id){const res=[];const st=[id];while(st.length){const cur=st.pop();data.groups.forEach(g=>{if((g.parent||'')===cur){res.push(g.id);st.push(g.id);}});}return res;}
+function fillParentSelect(sel){
+  const el=document.getElementById("gv_parent");
+  const blocked=editingGroup?new Set([editingGroup,...descendantsOf(editingGroup)]):new Set();
+  let o='<option value="">（顶级系列，无上级）</option>';
+  for(const g of data.groups){
+    if(g.cat!==currentTab()||blocked.has(g.id))continue;
+    o+='<option value="'+g.id+'"'+((sel||'')===g.id?' selected':'')+'>'+esc(g.name)+'</option>';
+  }
+  el.innerHTML=o;
+}
+function openAddGroup(parentId){
+  editingGroup=null;
+  const pid=parentId||'';
+  document.getElementById("groupModalTitle").textContent=pid?("加小系列 · 归属『"+groupName(pid)+"』"):("加系列（"+currentTab()+"）");
+  document.getElementById("gv_name").value="";
+  fillParentSelect(pid);
+  document.getElementById("gv_rm").style.visibility="hidden";
+  showModal('groupModal',gmOpen);
+  /* 自动聚焦系列名输入框，打开即可直接打字命名 */
+  setTimeout(()=>{const el=document.getElementById("gv_name");if(el)el.focus();},80);
+}
+function openAddSub(parentId){openAddGroup(parentId||'');}
+function openEditGroup(id){
+  const g=data.groups.find(x=>x.id===id);if(!g)return;
+  editingGroup=id;
+  document.getElementById("groupModalTitle").textContent="编辑系列";
+  document.getElementById("gv_name").value=g.name;
+  fillParentSelect(g.parent||'');
+  document.getElementById("gv_rm").style.visibility="visible";
+  showModal('groupModal',gmOpen);
+  /* 聚焦输入框即可直接打字（value 赋值后 focus 光标自然在末尾；不用 setSelectionRange，避免干扰中文输入法） */
+  setTimeout(()=>{const el=document.getElementById("gv_name");if(el)el.focus();},80);
+}
+function clearGroupName(){const el=document.getElementById("gv_name");if(el){el.value="";el.focus();}}
+function closeGroup(){hideModal('groupModal');}
+function saveGroup(){
+  const name=document.getElementById("gv_name").value.trim();
+  if(!name){toast("请输入系列名称");return;}
+  const parent=document.getElementById("gv_parent").value;
+  if(editingGroup){const g=data.groups.find(x=>x.id===editingGroup);if(g){g.name=name;g.parent=parent||null;}}
+  else data.groups.push({id:'g'+Date.now().toString(36),cat:currentTab(),name,parent:parent||null});
+  persist();renderAll();hideModal('groupModal');
+  if(gmOpen)renderGroupManager();
+  toast("已保存");
+}
+function delGroupCore(id){
+  const pid=(data.groups.find(x=>x.id===id)||{}).parent||null;
+  data.groups.forEach(g=>{if((g.parent||'')===id)g.parent=pid;});
+  data.items=data.items.filter(x=>x.group!==id); /* 系列内的作品直接删除 */
+  data.groups=data.groups.filter(x=>x.id!==id);
+}
+function delGroup(){
+  if(!editingGroup)return;
+  const g=data.groups.find(x=>x.id===editingGroup);
+  const cnt=data.items.filter(x=>x.group===editingGroup).length;
+  if(!confirmDel("删除系列「"+g.name+"」？"+(cnt?"其下 "+cnt+" 部作品将一并删除，":"")+"其下子系列会上提一级。"))return;
+  delGroupCore(editingGroup);
+  persist();renderAll();hideModal('groupModal');
+  if(gmOpen)renderGroupManager();
+  toast("已删除");
+}
+function delGroupById(id){
+  const g=data.groups.find(x=>x.id===id);if(!g)return;
+  const subs=data.groups.filter(x=>(x.parent||'')===id).length;
+  const cnt=data.items.filter(x=>x.cat===currentTab()&&x.group===id).length;
+  if(!confirmDel("删除系列「"+g.name+"」？"+(subs?"其下 "+subs+" 个子系列会上提一级，":"")+(cnt?""+cnt+" 部作品将一并删除，":"")+"确定吗？"))return;
+  delGroupCore(id);
+  persist();renderAll();
+  if(gmOpen)renderGroupManager();
+  toast("已删除");
+}
+document.getElementById("gv_rm").onclick=delGroup;
+
+/* ============ 系列管理弹窗 ============ */
+let gmOpen=false;
+function openGroupManager(){
+  gmOpen=true;
+  renderGroupManager();
+  showModal('groupManagerModal');
+}
+function closeGroupManager(){gmOpen=false;hideModal('groupManagerModal');}
+function renderGroupManager(){
+  const cat=currentTab();
+  const groups=data.groups.filter(x=>x.cat===cat);
+  /* 根 = 无父级 或 父级不存在（历史孤儿数据） */
+  const kidsOf=pid=>pid?groups.filter(g=>g.parent===pid):groups.filter(g=>!g.parent||!groups.some(y=>y.id===g.parent));
+  /* 子系列按其父系列的混排顺序展示（与主界面一致），作品项仅用于确定相对先后 */
+  const orderedKids=pid=>{
+    const kids=kidsOf(pid);
+    const g=data.groups.find(x=>x.id===pid);
+    const order=(g&&Array.isArray(g.order))?g.order.slice():[];
+    if(!order.length)return kids;
+    const idx=new Map(kids.map(k=>[k.id,k]));
+    const out=[];
+    for(const id of order){const k=idx.get(id);if(k){out.push(k);idx.delete(id);}}
+    for(const k of kids){if(idx.has(k.id))out.push(k);}
+    return out;
+  };
+  document.getElementById("gm_cat").textContent=cat;
+  document.getElementById("gm_cnt").textContent='共 '+groups.length+' 个系列';
+  const box=document.getElementById("gm_list");
+  const opsRow=id=>'<span class="gm-ops">'+
+    '<button class="mini" title="上移" onclick="moveGroup(\''+id+'\',-1);renderGroupManager();">⬆</button>'+
+    '<button class="mini" title="下移" onclick="moveGroup(\''+id+'\',1);renderGroupManager();">⬇</button>'+
+    '<button class="mini" title="改名 / 调整归属" onclick="openEditGroup(\''+id+'\')">✏️</button>'+
+    '<button class="mini" title="删除系列" onclick="delGroupById(\''+id+'\')">🗑</button>'+
+  '</span>';
+  let html='';
+  const walk=(list,depth)=>{
+    for(const g of list){
+      const kids=orderedKids(g.id);
+      const cnt=data.items.filter(x=>x.cat===cat&&x.group===g.id).length;
+      const empty=!cnt&&!kids.length;
+      html+='<div class="gm-row" style="padding-left:'+(depth*24)+'px">'+
+        (depth?'<span class="gm-lv">└ </span>':'')+
+        '<span class="gm-name'+(empty?' gm-empty':'')+'">'+esc(g.name)+(empty?'<em>(空)</em>':'')+'</span>'+
+        '<span class="gm-cnt">'+cnt+' 部</span>'+opsRow(g.id)+'</div>';
+      if(kids.length)walk(kids,depth+1);
+    }
+  };
+  walk(kidsOf(null),0);
+  if(!groups.length)html='<div class="empty-mini">还没有系列，点上方「＋ 加顶级系列」创建</div>';
+  box.innerHTML=html;
+}
+
+/* ============ 统计分页 ============ */
+function catColor(i){return ['#7c5cf0','#12b76a','#e7823a','#0ea5e9','#e5484d'][i%5];}
+function donut(parts,total){
+  if(!total)return '<div class="st-donut"><div class="st-circle-in" style="position:static">0</div></div>';
+  let acc=0,arcs='';
+  parts.forEach(p=>{if(!p[1])return;const a=p[1]/total*360;const large=a>180?1:0;
+    const r1=(acc-90)*Math.PI/180,r2=(acc+a-90)*Math.PI/180;
+    arcs+='<path d="M50 50 L'+(50+50*Math.cos(r1)).toFixed(2)+' '+(50+50*Math.sin(r1)).toFixed(2)+' A50 50 0 '+large+' 1 '+(50+50*Math.cos(r2)).toFixed(2)+' '+(50+50*Math.sin(r2)).toFixed(2)+' Z" fill="'+p[2]+'"/>';
+    acc+=a;});
+  return '<div class="st-donut"><svg viewBox="0 0 100 100">'+arcs+'</svg><div class="st-circle-in">'+total+'</div></div>';
+}
+function renderStats(m){
+  const items=data.items,total=items.length;
+  const mx=v=>Math.max(1,Math.max.apply(null,v));
+  const byCat=allCats().map((c,i)=>items.filter(x=>x.cat===c).length);
+  const catBars=allCats().map((c,i)=>'<div class="st-bar-row"><span class="st-bar-name">'+c+'</span><div class="st-bar"><i style="width:'+(100*byCat[i]/mx(byCat)).toFixed(1)+'%;background:'+catColor(i)+'"></i></div><b>'+byCat[i]+'</b></div>').join('');
+  const stNames=allStatusNames();
+  const numOf=s=>items.filter(x=>((x.status&&x.status!=='')?x.status:'未看')===s).length;
+  const status=stNames.map(s=>numOf(s));
+  const stCol={};stNames.forEach((s,i)=>stCol[s]=catColor(i));
+  const stLegend=stNames.map((s,si)=>'<span class="st-legend"><i style="background:'+stCol[s]+'"></i>'+esc(s)+' '+status[si]+'</span>').join('');
+  const finished=items.filter(x=>x.finished).length;
+  const finPct=total?Math.round(finished/total*100):0;
+  const mvCnt=SUBCATS['影视'].map(t=>items.filter(x=>x.cat==='影视'&&x.type===t).length);
+  const mvBars=SUBCATS['影视'].map((t,i)=>'<div class="st-bar-row"><span class="st-bar-name">'+t+'</span><div class="st-bar"><i style="width:'+(100*mvCnt[i]/mx(mvCnt)).toFixed(1)+'%;background:#0ea5e9"></i></div><b>'+mvCnt[i]+'</b></div>').join('');
+  const groupCnt={};items.forEach(x=>{if(x.group)groupCnt[x.group]=(groupCnt[x.group]||0)+1;});
+  const topGroups=Object.entries(groupCnt).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const topHtml=topGroups.length?topGroups.map(([gid,n])=>'<div class="st-row"><span>'+esc(groupName(gid))+'</span><div class="st-bar"><i style="width:'+(n/Math.max(1,topGroups[0][1])*100).toFixed(1)+'%;background:#7c5cf0"></i></div><b>'+n+'</b></div>').join(''):'<div class="st-empty">还没有系列分组</div>';
+  m.innerHTML=
+   '<div class="toolbar"><span class="tip">📊 '+total+' 部作品的整体统计</span></div>'+
+   '<div class="st-grid">'+
+     '<div class="panel st-card"><div class="st-num">'+total+'</div><div class="st-lab">作品总数</div></div>'+
+     '<div class="panel st-card"><div class="st-num" style="color:#7c5cf0">'+numOf('在看')+'</div><div class="st-lab">在看 · 追更</div></div>'+
+     '<div class="panel st-card"><div class="st-num" style="color:#e7823a">'+numOf('想看')+'</div><div class="st-lab">想看 · 待补</div></div>'+
+     '<div class="panel st-card"><div class="st-num" style="color:#0d9d5c">'+finished+'</div><div class="st-lab">已完结整部</div></div>'+
+     '<div class="panel st-card"><div class="st-num" style="color:#0ea5e9">'+data.groups.length+'</div><div class="st-lab">系列分组</div></div>'+
+     '<div class="panel st-card"><div class="st-num" style="color:#e5484d">'+data.links.length+'</div><div class="st-lab">收藏(网页)</div></div>'+
+   '</div>'+
+   '<div class="st-cols">'+
+     '<div class="panel"><h2>📚 按分类分布</h2>'+catBars+'</div>'+
+     '<div class="panel"><h2>🎬 观看状态占比</h2><div class="st-donut-wrap">'+donut(stNames.map((s,si)=>[s,status[si],stCol[s]]),total)+'</div><div class="st-legend">'+stLegend+'</div>'+
+        '<div class="st-fin"><div class="st-fin-bar"><i style="width:'+finPct+'%"></i></div><span>完结率 '+finPct+'%</span></div></div>'+
+     '<div class="panel"><h2>🎞 影视类型</h2>'+mvBars+'</div>'+
+     '<div class="panel"><h2>🏷 作品最多的系列</h2>'+topHtml+'</div>'+
+   '</div>';
+}
+
+/* ============ 设置页：观看状态 / 自定义字段 / 排序 ============ */
+function renderSettings(m){
+  const cats=allCats();
+  const sts=(data.settings.statuses)||[];
+  const stRows=sts.map((s,si)=>{
+    const scope=(s.cats&&s.cats.length)?('仅 '+s.cats.join('、')):'全部分类';
+    return '<div class="st-row"><span class="st-bar-name" style="flex:1">'+esc(s.name)+'</span><span class="tip">'+esc(scope)+'</span>'+
+      '<button class="btn btn-ghost btn-sm" onclick="openEditStatus('+si+')">✏️</button>'+
+      '<button class="btn btn-ghost btn-sm" onclick="delStatus('+si+')">🗑</button></div>';
+  }).join('')||'<div class="empty-mini">尚未配置状态</div>';
+  const sortRows=cats.map((c,ci)=>{
+    const cur=sortModeOf(c);
+    let extra='';
+    if(cur.mode==='field'){
+      const opts=fieldsOf(c).map(f=>'<option value="'+esc(f.key)+'"'+(cur.field===f.key?' selected':'')+'>'+esc(f.label)+'</option>').join('');
+      extra='<select class="flt" id="sf_'+ci+'" onchange="applySortField('+ci+')"><option value="">（选字段）</option>'+opts+'</select>'+
+        '<select class="flt" id="sd_'+ci+'" onchange="applySortField('+ci+')"><option value="asc"'+(cur.dir==='asc'?' selected':'')+'>升序</option><option value="desc"'+(cur.dir==='desc'?' selected':'')+'>降序</option></select>';
+    }
+    return '<div class="st-row"><span class="st-bar-name">'+esc(c)+'</span>'+
+      '<select class="flt" id="sm_'+ci+'" onchange="applySortField('+ci+')">'+
+        '<option value="manual"'+(cur.mode==='manual'?' selected':'')+'>手动排序</option>'+
+        '<option value="status"'+(cur.mode==='status'?' selected':'')+'>按状态</option>'+
+        '<option value="name"'+(cur.mode==='name'?' selected':'')+'>按名称</option>'+
+        '<option value="field"'+(cur.mode==='field'?' selected':'')+'>按字段</option>'+
+      '</select>'+extra+'</div>';
+  }).join('')||'<div class="empty-mini">暂无分类</div>';
+  const fieldRows=cats.map((c,ci)=>{
+    const fs=fieldsOf(c);
+    const tags=fs.map(f=>'<span class="cfield" style="cursor:pointer;margin-right:6px" onclick="openEditFieldIdx('+ci+',\''+esc(f.key)+'\')">'+esc(f.label)+(f.type==='select'?' ▾':'')+'</span>').join('');
+    return '<div class="st-row"><span class="st-bar-name">'+esc(c)+'</span><div style="flex:1">'+(tags||'<span class="tip">无字段</span>')+'</div>'+
+      '<button class="btn btn-ghost btn-sm" onclick="openAddFieldIdx('+ci+')">＋ 字段</button></div>';
+  }).join('');
+  m.innerHTML=
+    '<div class="toolbar"><span class="tip">⚙ 个性化设置（改动即时保存）</span></div>'+
+    '<div class="panel"><h2>👁 观看状态</h2>'+stRows+
+      '<div class="addin" onclick="openAddStatus()">＋ 添加观看状态</div>'+
+      '<div class="tip-inline">状态限定分类后只在该分类出现；留空则全分类通用。删除状态不会删作品，相关作品退回「未看」。</div></div>'+
+    '<div class="panel"><h2>🔁 各分类排序方式</h2>'+sortRows+
+      '<div class="tip-inline">「手动排序」保留拖拽顺序；其余方式按规则自动排列。</div></div>'+
+    '<div class="panel"><h2>🏷 自定义字段</h2>'+fieldRows+
+      '<div class="tip-inline">点字段名可修改；填写的字段会显示在作品条目上（如给「小说」加「作者」）。</div></div>';
+}
+/* 观看状态 */
+let stEditIdx=null, stCats=new Set();
+function renderStatusCatChips(){
+  const box=document.getElementById("st_cat_chips");
+  box.innerHTML=allCats().map(c=>'<span data-v="'+esc(c)+'"'+(stCats.has(c)?' class="on"':'')+'>'+esc(c)+'</span>').join('');
+}
+function openAddStatus(){
+  stEditIdx=null;stCats=new Set();
+  document.getElementById("statusModalTitle").textContent="添加观看状态";
+  document.getElementById("st_name").value="";
+  renderStatusCatChips();
+  showModal('statusModal');
+  setTimeout(()=>document.getElementById("st_name").focus(),60);
+}
+function openEditStatus(si){
+  const s=(data.settings.statuses||[])[si];if(!s)return;
+  stEditIdx=si;stCats=new Set(s.cats||[]);
+  document.getElementById("statusModalTitle").textContent="编辑观看状态";
+  document.getElementById("st_name").value=s.name;
+  renderStatusCatChips();
+  showModal('statusModal');
+  setTimeout(()=>document.getElementById("st_name").focus(),60);
+}
+function closeStatus(){hideModal('statusModal');}
+function saveStatus(){
+  const name=document.getElementById("st_name").value.trim();
+  if(!name){toast("请输入状态名称");return;}
+  const sts=data.settings.statuses||[];
+  const cats=[...stCats];
+  if(stEditIdx!=null){
+    const old=sts[stEditIdx].name;
+    sts[stEditIdx]={name,cats};
+    if(old!==name)data.items.forEach(it=>{if(it.status===old)it.status=name;});
+  }else{
+    if(sts.some(s=>s.name===name)){toast("状态「"+name+"」已存在");return;}
+    sts.push({name,cats});
+  }
+  data.settings.statuses=sts;
+  persist();renderAll();hideModal('statusModal');
+  toast("已保存状态");
+}
+function delStatus(si){
+  const s=(data.settings.statuses||[])[si];if(!s)return;
+  if(!confirmDel("删除状态「"+s.name+"」？相关作品会自动退回「未看」。"))return;
+  data.settings.statuses=(data.settings.statuses||[]).filter((_,i)=>i!==si);
+  data.items.forEach(it=>{if(it.status===s.name)it.status='';});
+  persist();renderAll();
+  toast("已删除状态");
+}
+/* 自定义字段 */
+let flEditKey=null, flEditCat=null, flType='text';
+function renderFieldCatSelect(sel){
+  document.getElementById("fl_cat").innerHTML=allCats().map(c=>'<option value="'+esc(c)+'"'+((sel||'')===c?' selected':'')+'>'+esc(c)+'</option>').join('');
+}
+function renderFieldTypeChips(){
+  document.querySelectorAll('#fl_type_chips span').forEach(s=>s.classList.toggle('on',s.dataset.v===flType));
+  document.getElementById("fl_opts_field").style.display=(flType==='select')?'':'none';
+}
+function openAddFieldIdx(ci){
+  flEditKey=null;flEditCat=null;flType='text';
+  document.getElementById("fieldModalTitle").textContent="添加字段";
+  document.getElementById("fl_label").value="";
+  document.getElementById("fl_opts").value="";
+  renderFieldCatSelect(allCats()[ci]||'');
+  renderFieldTypeChips();
+  document.getElementById("fl_rm").style.visibility="hidden";
+  showModal('fieldModal');
+  setTimeout(()=>document.getElementById("fl_label").focus(),60);
+}
+function openEditFieldIdx(ci,key){
+  const cat=allCats()[ci]||'';
+  const f=fieldsOf(cat).find(x=>x.key===key);if(!f)return;
+  flEditKey=key;flEditCat=cat;flType=f.type||'text';
+  document.getElementById("fieldModalTitle").textContent="编辑字段";
+  document.getElementById("fl_label").value=f.label;
+  document.getElementById("fl_opts").value=(f.options||[]).join('\n');
+  renderFieldCatSelect(cat);
+  renderFieldTypeChips();
+  document.getElementById("fl_rm").style.visibility="visible";
+  showModal('fieldModal');
+  setTimeout(()=>document.getElementById("fl_label").focus(),60);
+}
+function closeField(){hideModal('fieldModal');}
+function saveField(){
+  const label=document.getElementById("fl_label").value.trim();
+  if(!label){toast("请输入字段名");return;}
+  const cat=document.getElementById("fl_cat").value;
+  if(!cat){toast("暂无分类，请先建分类");return;}
+  const type=flType;
+  const options=(type==='select')?document.getElementById("fl_opts").value.split('\n').map(s=>s.trim()).filter(Boolean):[];
+  data.settings.fields=data.settings.fields||{};
+  data.settings.fields[cat]=data.settings.fields[cat]||[];
+  if(flEditKey!=null&&flEditCat&&flEditCat!==cat){
+    data.settings.fields[flEditCat]=(data.settings.fields[flEditCat]||[]).filter(x=>x.key!==flEditKey);
+    data.items.forEach(it=>{if(it.fields&&it.fields[flEditKey]!=null)delete it.fields[flEditKey];});
+    flEditKey=null;
+  }
+  if(flEditKey!=null){
+    const f=data.settings.fields[cat].find(x=>x.key===flEditKey);
+    if(f){f.label=label;f.type=type;f.options=options;}
+    else data.settings.fields[cat].push({key:flEditKey,label,type,options});
+  }else{
+    if(data.settings.fields[cat].some(x=>x.label===label)){toast("该分类下已有字段「"+label+"」");return;}
+    data.settings.fields[cat].push({key:'f'+Date.now().toString(36),label,type,options});
+  }
+  persist();renderAll();hideModal('fieldModal');
+  toast("已保存字段");
+}
+function delField(){
+  if(flEditKey==null||!flEditCat)return;
+  if(!confirmDel("删除字段？该字段在作品里已填的值也会一并清除。"))return;
+  data.settings.fields[flEditCat]=(data.settings.fields[flEditCat]||[]).filter(x=>x.key!==flEditKey);
+  data.items.forEach(it=>{if(it.fields&&it.fields[flEditKey]!=null)delete it.fields[flEditKey];});
+  persist();renderAll();hideModal('fieldModal');
+  toast("已删除字段");
+}
+/* 排序 */
+function applySortField(ci){
+  const cat=allCats()[ci];if(!cat)return;
+  const mode=document.getElementById("sm_"+ci).value;
+  const entry={mode,field:'',dir:'asc'};
+  if(mode==='field'){
+    entry.field=document.getElementById("sf_"+ci).value;
+    entry.dir=document.getElementById("sd_"+ci).value;
+  }
+  data.settings.sortBy=data.settings.sortBy||{};
+  data.settings.sortBy[cat]=entry;
+  persist();renderSettings(document.getElementById("main"));
+  toast("分类「"+cat+"」排序已更新");
+}
+document.addEventListener('click',e=>{
+  const t=e.target;
+  const sc=t.closest&&t.closest('#st_cat_chips span');if(sc){const v=sc.dataset.v;stCats.has(v)?stCats.delete(v):stCats.add(v);renderStatusCatChips();return;}
+  const ft=t.closest&&t.closest('#fl_type_chips span');if(ft){flType=ft.dataset.v;renderFieldTypeChips();return;}
+});
+
+/* ============ 收藏夹 ============ */
+function renderLinks(m){
+  let html='<div class="toolbar"><span class="tip">共 '+data.links.length+' 个收藏</span><span class="spacer"></span>'+
+    '<button class="btn btn-primary btn-sm" onclick="openAddLink()">＋ 加收藏</button></div>';
+  if(!data.links.length){html+='<div class="panel empty-mini">还没有收藏，点「＋加收藏」记录网址</div>';}
+  else{
+    html+='<div class="panel" style="padding:8px 16px;">'+data.links.map(l=>
+      '<div class="link"><div style="flex:1"><span class="ltitle">'+esc(l.title)+'</span><span class="lurl">'+esc(l.url)+'</span></div>'+
+      (l.tag?'<span class="tag">'+esc(l.tag)+'</span>':'')+
+      '<a class="btn btn-ghost btn-sm" href="'+esc(l.url)+'" target="_blank" rel="noopener">打开</a>'+
+      '<button class="btn btn-ghost btn-sm" onclick="openEditLink(\''+l.id+'\')">编辑</button>'+
+      '</div>').join('')+'</div>';
+  }
+  m.innerHTML=html;
+}
+let editingLink=null;
+function openAddLink(){editingLink=null;
+  document.getElementById("linkModalTitle").textContent="加收藏";
+  document.getElementById("lv_title").value="";document.getElementById("lv_url").value="";
+  document.getElementById("lv_tag").value="";document.getElementById("lv_note").value="";
+  document.getElementById("lv_rm").style.visibility="hidden";showModal('linkModal');}
+function openEditLink(id){const l=data.links.find(x=>x.id===id);if(!l)return;editingLink=id;
+  document.getElementById("linkModalTitle").textContent="编辑·"+l.title;
+  document.getElementById("lv_title").value=l.title;document.getElementById("lv_url").value=l.url;
+  document.getElementById("lv_tag").value=l.tag||'';document.getElementById("lv_note").value=l.note||'';
+  document.getElementById("lv_rm").style.visibility="visible";showModal('linkModal');}
+function closeLink(){hideModal('linkModal');}
+function saveLink(){
+  const title=document.getElementById("lv_title").value.trim();
+  const url=document.getElementById("lv_url").value.trim();
+  if(!title||!url){toast("标题和网址都要填");return;}
+  const tag=document.getElementById("lv_tag").value.trim(),note=document.getElementById("lv_note").value.trim();
+  if(editingLink){const l=data.links.find(x=>x.id===editingLink);if(l){l.title=title;l.url=url;l.tag=tag;l.note=note;}}
+  else data.links.push({id:'l'+Date.now().toString(36),title,url,tag,note});
+  persist();renderAll();hideModal('linkModal');toast("已保存");
+}
+function delLink(){if(!editingLink)return;if(!confirmDel("删除这个收藏？"))return;
+  data.links=data.links.filter(x=>x.id!==editingLink);persist();renderAll();hideModal('linkModal');toast("已删除");}
+document.getElementById("lv_rm").onclick=delLink;
+
+/* ============ 新增 / 删除自定义分类 ============ */
+const cvState={mode:'prog',season:'季名',time:false};
+function openAddCat(){
+  cvState.mode='prog';cvState.season='季名';cvState.time=false;
+  document.getElementById("cv_name").value="";
+  document.getElementById("cv_ep").value="";
+  renderCvChips();syncCvBox();
+  showModal('catModal');
+  setTimeout(()=>document.getElementById("cv_name").focus(),60);
+}
+function closeAddCat(){hideModal('catModal');}
+function renderCvChips(){
+  document.getElementById("cv_ep_chips").innerHTML=['集','话','章','卷','部','关','期','课','回','首'].map(e=>'<span data-v="'+e+'">'+e+'</span>').join('');
+}
+function syncCvBox(){
+  document.getElementById("cv_prog_box").style.display=cvState.mode==='prog'?'':'none';
+  [['cv_mode_chips',()=>cvState.mode],['cv_season_chips',()=>cvState.season],['cv_time_chips',()=>cvState.time?'1':'0']].forEach(([id,get])=>{
+    document.querySelectorAll('#'+id+' span').forEach(s=>s.classList.toggle('on',s.dataset.v===get()));
+  });
+}
+document.addEventListener('click',e=>{
+  const t=e.target;
+  const m=t.closest&&t.closest('#cv_mode_chips span');if(m){cvState.mode=m.dataset.v;syncCvBox();return;}
+  const s=t.closest&&t.closest('#cv_season_chips span');if(s){cvState.season=s.dataset.v;syncCvBox();return;}
+  const tm=t.closest&&t.closest('#cv_time_chips span');if(tm){cvState.time=tm.dataset.v==='1';syncCvBox();return;}
+  const ep=t.closest&&t.closest('#cv_ep_chips span');if(ep){document.getElementById("cv_ep").value=ep.dataset.v;return;}
+  const fin=t.closest&&t.closest('#iv_fin_chips span');if(fin){ivFinished=fin.dataset.v==='1';renderFinChips();return;}
+});
+function saveAddCat(){
+  const name=document.getElementById("cv_name").value.trim();
+  if(!name){toast("请输入分类名称");return;}
+  if((CATS.indexOf(name)>=0&&!(data.removedCats||[]).includes(name))||(data.cats||[]).some(c=>c.name===name)){toast("分类「"+name+"」已存在");return;}
+  if(cvState.mode==='hide'){
+    data.cats.push({name,season:null,ep:'',time:false,hide:true});
+  }else{
+    data.cats.push({name,season:cvState.season||null,ep:document.getElementById("cv_ep").value.trim()||'集',time:cvState.time,hide:false});
+  }
+  currentCat=name;
+  persist();renderAll();hideModal('catModal');
+  toast("已创建分类「"+name+"」");
+}
+function delCurCat(){
+  const cat=currentCat;
+  if(cat==='收藏夹'||cat==='统计'||cat==='设置')return;
+  const n=data.items.filter(x=>x.cat===cat).length;
+  const g=data.groups.filter(x=>x.cat===cat).length;
+  if(!confirmDel("删除分类「"+cat+"」会同时删除其下 "+n+" 部作品"+(g?"、"+g+" 个系列":"")+"，且无法恢复。确定吗？"))return;
+  if(CATS.indexOf(cat)>=0){
+    data.removedCats=data.removedCats||[];
+    if(!data.removedCats.includes(cat))data.removedCats.push(cat);
+  }else{
+    data.cats=data.cats.filter(x=>x.name!==cat);
+  }
+  data.groups=data.groups.filter(x=>x.cat!==cat);
+  data.items=data.items.filter(x=>x.cat!==cat);
+  currentCat=allCats()[0]||'收藏夹';
+  persist();renderAll();
+  toast("已删除分类「"+cat+"」");
+}
+
+/* ============ 通用弹窗 / 提示 ============ */
+function showModal(id,top){
+  const el=document.getElementById(id);
+  el.classList.add('show');
+  if(top)el.classList.add('top');
+  /* 重置弹窗内部滚动位置，避免上次关在底部、下次打开仍在底部 */
+  const m=el.querySelector('.modal');
+  if(m)m.scrollTop=0;
+}
+function hideModal(id){document.getElementById(id).classList.remove('show','top');}
+document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('show','top');}));
+let toastTimer;
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),2200);}
+
+/* ============ 导出 / 导入 ============ */
+function openExport(){APP.saveBackup(buildPayload()).then(p=>{toast(p?"已导出备份到 "+p:"已取消导出");});}
+function openImport(){APP.openBackup().then(r=>{if(r&&r.text){const got=readPayloadText(r.text);if(got){data=got;persist();renderAll();renderStoreBar();toast("已恢复备份：来自 "+r.name);}else toast("恢复失败：文件格式不对");}});}
+
+/* ============ 启动 ============ */
+bootstrap();
+</script>
+</body>
+</html>
